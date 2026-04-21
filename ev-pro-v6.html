@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="EV PRO 管理">
+<meta name="theme-color" content="#2563eb">
+<title>EV PRO 管理</title>
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3103/3103443.png">
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3103/3103443.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Nunito','Noto Sans TC','sans-serif'],mono:['JetBrains Mono','monospace']}}}}</script>
+<style>
+:root{
+  --bg:#f1f5f9;--surface:rgba(255,255,255,0.75);--surface-solid:#ffffff;--surface2:rgba(241,245,249,0.8);
+  --border:rgba(203,213,225,0.7);--border-solid:#e2e8f0;
+  --blue:#2563eb;--blue-l:#dbeafe;--blue-d:#1d4ed8;
+  --green:#16a34a;--green-l:#dcfce7;
+  --amber:#d97706;--amber-l:#fef3c7;
+  --red:#dc2626;--red-l:#fee2e2;
+  --purple:#7c3aed;--purple-l:#ede9fe;
+  --teal:#0891b2;--teal-l:#cffafe;
+  --pink:#db2777;--pink-l:#fce7f3;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --sh:0 4px 24px rgba(37,99,235,.08),0 1px 4px rgba(0,0,0,.04);
+  --sh-lg:0 12px 40px rgba(37,99,235,.14);--glass:blur(20px) saturate(180%);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:linear-gradient(135deg,#dbeafe 0%,#f0fdf4 40%,#fef3c7 100%);background-attachment:fixed;color:var(--text);font-family:'Nunito','Noto Sans TC',sans-serif;min-height:100vh;overscroll-behavior:none;}
+body{padding-bottom:88px}
+.page{display:none;animation:pgIn .25s cubic-bezier(.4,0,.2,1)}
+.page.active{display:block}
+@keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:var(--sh);transition:box-shadow .2s,transform .1s}
+.card:active{box-shadow:var(--sh-lg);transform:scale(.995)}
+.card-flat{background:rgba(255,255,255,0.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:8px}
+.glass-header{background:rgba(255,255,255,0.72);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border-bottom:1px solid var(--border);padding:16px 20px 14px;position:sticky;top:0;z-index:50}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 18px;border-radius:13px;font-weight:800;font-size:14px;cursor:pointer;border:none;transition:all .15s;gap:6px;white-space:nowrap;font-family:inherit}
+.btn:active{transform:scale(.95)}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(37,99,235,.35)}
+.btn-blue:hover{background:var(--blue-d)}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 4px 16px rgba(22,163,74,.3)}
+.btn-red{background:var(--red);color:#fff;box-shadow:0 4px 12px rgba(220,38,38,.25)}
+.btn-ghost{background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);color:var(--text2);border:1.5px solid var(--border)}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-teal{background:var(--teal);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-sm{padding:7px 14px;font-size:12px;border-radius:10px}
+.btn-xs{padding:5px 10px;font-size:11px;border-radius:8px;font-weight:800}
+.input{background:rgba(255,255,255,0.75);backdrop-filter:blur(8px);border:1.5px solid var(--border);color:var(--text);border-radius:12px;padding:10px 14px;font-size:15px;width:100%;font-family:inherit;transition:all .15s;-webkit-appearance:none}
+.input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12);background:rgba(255,255,255,.95)}
+.input::placeholder{color:var(--text3)}
+select.input{cursor:pointer}
+textarea.input{resize:vertical;min-height:72px}
+label.lbl{display:block;font-size:12px;font-weight:800;color:var(--text2);margin-bottom:5px;letter-spacing:.4px}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.88);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 24px rgba(37,99,235,.07)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 4px 10px;cursor:pointer;transition:color .15s;color:var(--text3);font-size:10px;gap:3px;font-weight:700;letter-spacing:.2px;user-select:none}
+.nav-item.active{color:var(--blue)}
+.nav-item svg{width:22px;height:22px;stroke-width:2;transition:stroke .15s}
+.nav-item.active svg{stroke:var(--blue)}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--blue);margin-top:1px;opacity:0;transition:opacity .2s}
+.nav-item.active .nav-dot{opacity:1}
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:flex-end;z-index:200;animation:ovIn .2s ease}
+@keyframes ovIn{from{opacity:0}to{opacity:1}}
+.modal{background:rgba(255,255,255,.96);backdrop-filter:var(--glass);border-radius:24px 24px 0 0;border:1px solid var(--border);border-bottom:none;padding:20px;width:100%;max-height:92vh;overflow-y:auto;animation:slUp .28s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 40px rgba(37,99,235,.12)}
+@keyframes slUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border-solid);border-radius:2px;margin:0 auto 16px}
+.confirm-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;animation:ovIn .15s ease}
+.confirm-box{background:rgba(255,255,255,.97);border-radius:20px;padding:24px 20px 20px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:popIn .2s cubic-bezier(.34,1.56,.64,1)}
+@keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+#toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-70px);background:rgba(255,255,255,.95);backdrop-filter:var(--glass);border:1.5px solid var(--green);color:var(--green);padding:10px 20px;border-radius:30px;font-size:14px;font-weight:800;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 4px 20px rgba(22,163,74,.2);pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.err{border-color:var(--red);color:var(--red);box-shadow:0 4px 20px rgba(220,38,38,.2)}
+#toast.info{border-color:var(--blue);color:var(--blue)}
+#sync-indicator{position:fixed;top:24px;right:16px;z-index:998;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);padding:6px 12px;border-radius:20px;font-size:11px;font-weight:800;border:1px solid var(--border);box-shadow:var(--sh);transition:all .3s;opacity:0;pointer-events:none}
+#sync-indicator.show{opacity:1;pointer-events:auto}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.sync-dot.spinning{background:var(--amber);animation:pulse 1s infinite}
+.sync-dot.err{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.sec-label{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;margin-top:20px;font-family:'JetBrains Mono',monospace}
+/* ★ 合併任務清單 */
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:14px;margin-bottom:7px;transition:all .2s;box-shadow:0 1px 8px rgba(0,0,0,.04)}
+.task-item.done{opacity:.45;background:rgba(241,245,249,.6)}
+.task-item.done .task-text{text-decoration:line-through;color:var(--text3)}
+.task-text{font-size:14px;font-weight:600;flex:1;line-height:1.45;color:var(--text);padding-top:2px}
+.task-meta{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px}
+.cbx{width:24px;height:24px;flex-shrink:0;border:2.5px solid var(--border);border-radius:7px;background:rgba(255,255,255,.9);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px}
+.cbx.on{background:var(--green);border-color:var(--green)}
+.cbx.on::after{content:'✓';color:#fff;font-size:14px;font-weight:900}
+@keyframes cbPop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+.cbx.pop{animation:cbPop .25s ease}
+/* ★ 任務標籤 */
+.task-tag{display:inline-block;padding:1px 7px;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.3px;margin-right:4px;flex-shrink:0}
+.tag-fixed{background:var(--blue-l);color:var(--blue)}
+.tag-memo{background:var(--amber-l);color:var(--amber)}
+.tag-custom{background:var(--purple-l);color:var(--purple)}
+.tag-synced{background:var(--green-l);color:var(--green)}
+/* ring */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(203,213,225,.5);stroke-width:7}
+.ring-fg{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .9s cubic-bezier(.4,0,.2,1)}
+.ring-label{position:absolute;text-align:center;pointer-events:none}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.3px}
+.b-wait{background:var(--purple-l);color:var(--purple)}
+.b-done{background:var(--green-l);color:var(--green)}
+.stat-card{background:rgba(255,255,255,0.72);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:18px;padding:14px 16px;box-shadow:var(--sh)}
+.stat-card-teal{background:rgba(207,250,254,0.75);backdrop-filter:blur(12px);border:1px solid rgba(8,145,178,.2);border-radius:18px;padding:14px 16px;box-shadow:var(--sh)}
+.stat-card-pink{background:rgba(252,231,243,0.75);backdrop-filter:blur(12px);border:1px solid rgba(219,39,119,.2);border-radius:18px;padding:14px 16px;box-shadow:var(--sh)}
+.wait-chip{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:12px;font-size:11px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.wait-chip.urgent{background:#fee2e2;color:#dc2626;animation:urgentPulse 2s infinite}
+.wait-chip.warn{background:#fef3c7;color:#d97706}
+.wait-chip.ok{background:#dcfce7;color:#16a34a}
+@keyframes urgentPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.3)}50%{box-shadow:0 0 0 4px rgba(220,38,38,.0)}}
+.card-urgent{border:1.5px solid rgba(220,38,38,.5)!important;animation:cardPulse 2.5s ease-in-out infinite}
+@keyframes cardPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.0),var(--sh)}50%{box-shadow:0 0 0 5px rgba(220,38,38,.15),var(--sh)}}
+.ann-row{display:grid;grid-template-columns:40px 1fr 1fr 1fr;gap:4px;padding:7px 10px;border-radius:10px;font-size:12px;font-weight:700;align-items:center}
+.ann-row.hd{background:var(--blue-l);color:var(--blue);font-size:11px;font-weight:800}
+.ann-row:not(.hd):nth-child(even){background:rgba(241,245,249,.7)}
+.ann-row.total-row{background:linear-gradient(135deg,var(--blue-l),var(--green-l));font-weight:900;font-size:13px;margin-top:4px}
+.skel{background:linear-gradient(90deg,rgba(203,213,225,.4) 25%,rgba(226,232,240,.6) 50%,rgba(203,213,225,.4) 75%);background-size:200% 100%;animation:skelAnim 1.5s infinite;border-radius:10px}
+@keyframes skelAnim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-line{height:14px;margin-bottom:8px}
+.profit-pos{color:var(--green);font-weight:800}
+.profit-neg{color:var(--red);font-weight:800}
+#confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:500}
+.filter-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;cursor:pointer;border:1.5px solid var(--border);background:rgba(255,255,255,.6);backdrop-filter:blur(8px);color:var(--text2);transition:all .15s;white-space:nowrap}
+.filter-pill.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 2px 10px rgba(37,99,235,.3)}
+.arrow-up{color:var(--green);font-weight:800}
+.arrow-down{color:var(--red);font-weight:800}
+.arrow-flat{color:var(--text3);font-weight:700}
+hr.divider{border:none;border-top:1px solid var(--border-solid);margin:14px 0}
+.empty{text-align:center;padding:32px 20px;color:var(--text3);font-size:14px;font-weight:600}
+.empty .ico{font-size:36px;margin-bottom:8px}
+.page-header-gradient{background:linear-gradient(135deg,rgba(219,234,254,.9) 0%,rgba(240,253,244,.9) 100%);backdrop-filter:var(--glass)}
+.order-num{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--text3);background:rgba(241,245,249,.8);padding:2px 7px;border-radius:6px;border:1px solid var(--border-solid)}
+.exp-item{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(255,255,255,.65);border:1px solid var(--border);border-radius:12px;margin-bottom:7px;gap:8px}
+.serial-badge{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3);background:rgba(241,245,249,.9);padding:1px 5px;border-radius:4px;border:1px solid var(--border-solid);letter-spacing:.3px}
+.income-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:flex-end;margin-bottom:12px}
+.chart-wrap{position:relative;height:200px;margin:8px 0}
+.chart-wrap-sm{position:relative;height:160px;margin:8px 0}
+.comm-btn{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;border:none;text-decoration:none;transition:transform .1s}
+.comm-btn:active{transform:scale(.93)}
+.comm-tel{background:var(--blue-l);color:var(--blue)}
+.comm-sms{background:var(--green-l);color:var(--green)}
+/* ★ 收入歷史紀錄 */
+.income-hist-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:rgba(255,255,255,.6);border:1px solid var(--border);border-radius:11px;margin-bottom:6px;gap:8px}
+/* ★ 任務過濾標籤 */
+.task-filter-wrap{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div id="toast"></div>
+<div id="sync-indicator"><div class="sync-dot" id="sync-dot"></div><span id="sync-text">同步中…</span></div>
+
+<!-- ══════════════════ PAGE 1 · DASHBOARD ══════════════════ -->
+<div id="page-dash" class="page active">
+  <div class="glass-header page-header-gradient">
+    <div class="flex items-center justify-between">
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--blue);font-family:'JetBrains Mono',monospace">DASHBOARD</div>
+        <h1 style="font-size:22px;font-weight:900;margin-top:1px;color:var(--text)">業績總覽</h1>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <div id="dash-date" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-align:right;line-height:1.7"></div>
+        <button onclick="syncAll()" class="btn btn-ghost btn-xs" style="font-size:10px;padding:4px 10px">🔄 同步</button>
+      </div>
+    </div>
+  </div>
+  <div class="px-4 pt-3">
+    <div class="card" style="padding:20px 16px">
+      <div class="flex justify-around items-center">
+        <div class="text-center">
+          <div class="ring-wrap">
+            <svg width="88" height="88" viewBox="0 0 90 90"><circle class="ring-bg" cx="45" cy="45" r="37"/><circle class="ring-fg" id="ring-tasks" cx="45" cy="45" r="37" stroke="#2563eb" stroke-dasharray="232.5" stroke-dashoffset="232.5"/></svg>
+            <div class="ring-label"><div style="font-size:21px;font-weight:900;color:var(--blue)" id="ring-tasks-pct">0%</div><div style="font-size:9px;font-weight:700;color:var(--text3)">任務</div></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-top:6px">今日進度</div>
+        </div>
+        <div class="text-center">
+          <div class="ring-wrap">
+            <svg width="88" height="88" viewBox="0 0 90 90"><circle class="ring-bg" cx="45" cy="45" r="37"/><circle class="ring-fg" id="ring-delivery" cx="45" cy="45" r="37" stroke="#16a34a" stroke-dasharray="232.5" stroke-dashoffset="232.5"/></svg>
+            <div class="ring-label"><div style="font-size:21px;font-weight:900;color:var(--green)" id="ring-delivery-pct">0%</div><div style="font-size:9px;font-weight:700;color:var(--text3)">交車</div></div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-top:6px">已完成率</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:32px;font-weight:900;color:var(--text)" id="dash-pending-count">0</div>
+          <div style="font-size:10px;font-weight:700;color:var(--amber)">⚠️ 待交車</div>
+          <div style="margin-top:10px;font-size:32px;font-weight:900;color:var(--text)" id="dash-tasks-left">0</div>
+          <div style="font-size:10px;font-weight:700;color:var(--blue)">今日待辦</div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-label">本月業績</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div class="stat-card"><div style="font-size:10px;font-weight:700;color:var(--text3)">新車銷量</div><div style="font-size:28px;font-weight:900;color:var(--blue)" id="dash-month-sales">0</div><div style="font-size:10px" id="dash-sales-growth"></div></div>
+      <div class="stat-card"><div style="font-size:10px;font-weight:700;color:var(--text3)">車輛毛利</div><div style="font-size:21px;font-weight:900;color:var(--green)" id="dash-month-profit">$0</div><div style="font-size:10px" id="dash-profit-growth"></div></div>
+      <div class="stat-card"><div style="font-size:10px;font-weight:700;color:var(--text3)">本月淨利</div><div style="font-size:21px;font-weight:900" id="dash-net-profit">$0</div></div>
+      <div class="stat-card"><div style="font-size:10px;font-weight:700;color:var(--text3)">任務完成</div><div style="font-size:28px;font-weight:900;color:var(--purple)" id="dash-completion-rate">0%</div><div style="font-size:10px;color:var(--text3)" id="dash-tasks-total"></div></div>
+    </div>
+    <div class="sec-label">💰 待交車款項追蹤</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="stat-card-teal"><div style="font-size:10px;font-weight:700;color:var(--teal)">✅ 已收訂金合計</div><div style="font-size:20px;font-weight:900;color:var(--teal)" id="dash-deposit-total">$0</div><div style="font-size:10px;color:var(--teal);margin-top:2px" id="dash-deposit-count"></div></div>
+      <div class="stat-card-pink"><div style="font-size:10px;font-weight:700;color:var(--pink)">⏳ 待收尾款合計</div><div style="font-size:20px;font-weight:900;color:var(--pink)" id="dash-balance-total">$0</div><div style="font-size:10px;color:var(--pink);margin-top:2px" id="dash-balance-count"></div></div>
+    </div>
+    <div class="sec-label">⚠️ 待交車追蹤</div>
+    <div id="dash-pending-list"></div>
+    <div class="sec-label">歷史月份對比</div>
+    <div class="card" style="padding:14px">
+      <div class="flex items-center gap-2 mb-3">
+        <select id="hist-month-sel" class="input" style="flex:1;font-size:13px" onchange="renderHistorical()"><option value="">— 選擇月份 —</option></select>
+        <span style="font-size:11px;color:var(--text3);white-space:nowrap">vs 本月</span>
+      </div>
+      <div id="hist-compare" style="font-size:13px;color:var(--text2)">請選擇月份</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 2 · TASKS (合併任務系統) ══════════════════ -->
+<div id="page-tasks" class="page">
+  <div class="glass-header page-header-gradient">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--blue);font-family:'JetBrains Mono',monospace">TASK SYNERGY</div>
+        <h1 style="font-size:22px;font-weight:900;margin-top:1px">任務清單</h1>
+      </div>
+      <div id="today-date" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-align:right;line-height:1.7"></div>
+    </div>
+    <!-- ★ 過濾標籤 -->
+    <div class="task-filter-wrap">
+      <div class="filter-pill active" id="tf-all" onclick="setTaskFilter('all')">全部</div>
+      <div class="filter-pill" id="tf-pending" onclick="setTaskFilter('pending')">⏳ 未完成</div>
+      <div class="filter-pill" id="tf-fixed" onclick="setTaskFilter('fixed')">📋 固定</div>
+      <div class="filter-pill" id="tf-custom" onclick="setTaskFilter('custom')">✏️ 自訂</div>
+    </div>
+  </div>
+  <div class="px-4 pt-2">
+    <div id="moti-banner" style="display:none;background:linear-gradient(135deg,rgba(219,234,254,.9),rgba(220,252,231,.9));backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin-bottom:12px;text-align:center;font-size:14px;font-weight:800;color:var(--blue)"></div>
+    <!-- ★ 新增任務輸入區（確認按鈕機制） -->
+    <div class="card" style="padding:14px;margin-bottom:12px">
+      <label class="lbl">新增任務 / 備忘錄</label>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px">
+        <input id="task-input" class="input" placeholder="輸入任務內容或維修備忘..." style="font-size:14px">
+        <button onclick="submitNewTask()" class="btn btn-blue btn-sm">✔ 確認新增</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;cursor:pointer">
+          <input type="radio" name="task-type" value="custom" checked style="accent-color:var(--purple)"> 自訂任務
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;cursor:pointer">
+          <input type="radio" name="task-type" value="memo" style="accent-color:var(--amber)"> 維修備忘
+        </label>
+      </div>
+    </div>
+    <!-- ★ 統一任務清單 -->
+    <div id="unified-task-list"></div>
+    <hr class="divider">
+    <div class="flex gap-2">
+      <button onclick="clearCompletedTasks()" class="btn btn-ghost" style="flex:1">🗑️ 清除已完成</button>
+      <button onclick="syncTasksToCloud()" class="btn btn-teal btn-sm" style="flex:1">☁️ 同步任務</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 3 · EV ORDERS ══════════════════ -->
+<div id="page-orders" class="page">
+  <div class="glass-header page-header-gradient">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--green);font-family:'JetBrains Mono',monospace">EV ORDERS</div>
+        <h1 style="font-size:22px;font-weight:900;margin-top:1px">電子訂單</h1>
+      </div>
+      <button onclick="openOrderModal()" class="btn btn-green btn-sm">＋ 新增</button>
+    </div>
+    <input id="search-input" class="input" placeholder="🔍 搜尋姓名、電話或訂單號碼..." oninput="renderOrders()" style="font-size:14px">
+    <div class="flex gap-2 mt-2 overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch;scrollbar-width:none">
+      <div class="filter-pill active" id="fp-all" onclick="setFilter('all')">全部</div>
+      <div class="filter-pill" id="fp-待交車" onclick="setFilter('待交車')">⚠️ 待交車</div>
+      <div class="filter-pill" id="fp-已完結" onclick="setFilter('已完結')">✅ 已完結</div>
+    </div>
+  </div>
+  <div class="px-4 pt-2" id="orders-list"></div>
+</div>
+
+<!-- ══════════════════ PAGE 4 · FINANCE ══════════════════ -->
+<div id="page-finance" class="page">
+  <div class="glass-header page-header-gradient">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <div>
+        <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--purple);font-family:'JetBrains Mono',monospace">FINANCE</div>
+        <h1 style="font-size:22px;font-weight:900;margin-top:1px">月度盈虧</h1>
+      </div>
+      <div class="flex gap-2 items-center">
+        <select id="fin-year-sel" class="input" style="width:auto;font-size:13px;padding:7px 10px" onchange="onFinYearChange()"></select>
+        <select id="fin-month-sel" class="input" style="width:auto;font-size:13px;padding:7px 10px" onchange="renderFinance()"></select>
+      </div>
+    </div>
+  </div>
+  <div class="px-4 pt-2">
+    <div class="sec-label">自動結算（依交車日期月份）</div>
+    <div class="card" style="padding:16px">
+      <div style="font-size:11px;color:var(--text3);font-weight:600;margin-bottom:10px">💡 利潤以「交車日期」月份計算。待交車不計入。</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+        <div><div style="font-size:10px;color:var(--text3);font-weight:700">已交車數</div><div style="font-size:26px;font-weight:900;color:var(--blue)" id="fin-count">0</div></div>
+        <div><div style="font-size:10px;color:var(--text3);font-weight:700">總銷售額</div><div style="font-size:17px;font-weight:900;color:var(--text)" id="fin-revenue">$0</div></div>
+        <div><div style="font-size:10px;color:var(--text3);font-weight:700">車輛毛利</div><div style="font-size:17px;font-weight:900" id="fin-gross">$0</div></div>
+      </div>
+    </div>
+
+    <!-- ★ 支出流水帳 -->
+    <div class="sec-label">💸 支出流水帳</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px">
+        <input id="exp-item-input" class="input" placeholder="支出項目（如：租金、水電）" style="font-size:14px">
+        <input id="exp-amount-input" class="input" type="number" min="0" placeholder="金額" style="font-size:14px;width:90px">
+      </div>
+      <div class="flex gap-2 mb-3">
+        <select id="exp-cat-sel" class="input" style="flex:1;font-size:13px">
+          <option value="固定支出">固定支出</option><option value="維修材料">維修材料</option>
+          <option value="行銷廣告">行銷廣告</option><option value="員工薪資">員工薪資</option>
+          <option value="水電租金">水電租金</option><option value="其他支出">其他支出</option>
+        </select>
+        <input id="exp-note-input" class="input" placeholder="備註(選填)" style="flex:1;font-size:13px">
+      </div>
+      <!-- ★ 確認按鈕 - 不自動觸發 -->
+      <button onclick="confirmAddExpense()" class="btn btn-red" style="width:100%;padding:9px">➕ 確認新增支出</button>
+      <div id="exp-list" style="margin-top:10px"></div>
+      <div style="background:rgba(254,226,226,.5);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span style="font-size:13px;font-weight:700;color:var(--red)">本月支出合計</span>
+        <span style="font-size:18px;font-weight:900;color:var(--red)" id="exp-total">$0</span>
+      </div>
+    </div>
+
+    <!-- ★ 維修收入流水帳 -->
+    <div class="sec-label">🔧 維修收入紀錄</div>
+    <div class="card">
+      <div class="income-row">
+        <div>
+          <label class="lbl">本次維修收入 ($)</label>
+          <input id="fin-repair-input" class="input" type="number" min="0" placeholder="0">
+        </div>
+        <button onclick="confirmAddIncome('repair')" class="btn btn-green btn-sm" style="align-self:flex-end">✔ 確認新增</button>
+      </div>
+      <input id="fin-repair-note" class="input" placeholder="備註（選填，如：客戶姓名、車型）" style="font-size:13px;margin-bottom:4px">
+      <div id="repair-income-list" style="margin-top:8px"></div>
+      <div style="background:rgba(220,252,231,.5);border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span style="font-size:13px;font-weight:700;color:var(--green)">本月維修收入小計</span>
+        <span style="font-size:17px;font-weight:900;color:var(--green)" id="repair-subtotal">$0</span>
+      </div>
+    </div>
+
+    <!-- ★ 其他收入流水帳 -->
+    <div class="sec-label">💼 其他收入紀錄</div>
+    <div class="card">
+      <div class="income-row">
+        <div>
+          <label class="lbl">本次其他收入 ($)</label>
+          <input id="fin-other-input" class="input" type="number" min="0" placeholder="0">
+        </div>
+        <button onclick="confirmAddIncome('other')" class="btn btn-blue btn-sm" style="align-self:flex-end">✔ 確認新增</button>
+      </div>
+      <input id="fin-other-note" class="input" placeholder="備註（選填，如：收入來源）" style="font-size:13px;margin-bottom:4px">
+      <div id="other-income-list" style="margin-top:8px"></div>
+      <div style="background:rgba(219,234,254,.5);border-radius:10px;padding:8px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span style="font-size:13px;font-weight:700;color:var(--blue)">本月其他收入小計</span>
+        <span style="font-size:17px;font-weight:900;color:var(--blue)" id="other-subtotal">$0</span>
+      </div>
+    </div>
+
+    <!-- 月度淨利 -->
+    <div class="sec-label">月度淨利</div>
+    <div class="card" style="padding:20px;text-align:center">
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:4px">本月淨利 (Net Profit)</div>
+      <div style="font-size:42px;font-weight:900" id="fin-net">$0</div>
+      <hr class="divider">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;text-align:left">
+        <div><span style="color:var(--text3);font-weight:700">車輛毛利</span><br><span id="fin-d-gross" style="font-weight:800">$0</span></div>
+        <div><span style="color:var(--text3);font-weight:700">維修收入</span><br><span id="fin-d-repair" style="font-weight:800;color:var(--green)">$0</span></div>
+        <div><span style="color:var(--text3);font-weight:700">其他收入</span><br><span id="fin-d-other" style="font-weight:800;color:var(--blue)">$0</span></div>
+        <div><span style="color:var(--text3);font-weight:700">支出合計</span><br><span id="fin-d-exp" style="font-weight:800;color:var(--red)">$0</span></div>
+      </div>
+    </div>
+
+    <!-- 月度對比 -->
+    <div class="sec-label">📊 月度對比</div>
+    <div class="card" style="padding:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><label class="lbl">月份 A</label><select id="cmp-ym-a" class="input" style="font-size:13px" onchange="renderCompareChart()"></select></div>
+        <div><label class="lbl">月份 B</label><select id="cmp-ym-b" class="input" style="font-size:13px" onchange="renderCompareChart()"></select></div>
+      </div>
+      <div class="chart-wrap-sm"><canvas id="chart-compare"></canvas></div>
+    </div>
+
+    <div class="sec-label">📈 近六個月趨勢</div>
+    <div class="card" style="padding:14px"><div class="chart-wrap"><canvas id="chart-trend"></canvas></div></div>
+
+    <div class="sec-label">🥧 本月支出佔比</div>
+    <div class="card" style="padding:14px">
+      <div class="chart-wrap-sm"><canvas id="chart-pie"></canvas></div>
+      <div id="pie-legend" style="margin-top:8px;font-size:11px;color:var(--text2)"></div>
+    </div>
+
+    <button onclick="exportMonthlyCSV()" class="btn btn-teal" style="width:100%;margin-bottom:12px">📊 匯出本月報表 (CSV)</button>
+
+    <div class="sec-label">年度總表</div>
+    <div class="card" style="padding:12px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:700;font-family:'JetBrains Mono',monospace">依選取年度彙總 12 個月</div>
+      <div id="fin-annual-table"></div>
+    </div>
+    <div class="sec-label">各筆訂單利潤</div>
+    <div id="fin-order-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ PAGE 5 · SETTINGS ══════════════════ -->
+<div id="page-settings" class="page">
+  <div class="glass-header page-header-gradient">
+    <div><div style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:var(--purple);font-family:'JetBrains Mono',monospace">SETTINGS</div><h1 style="font-size:22px;font-weight:900;margin-top:1px">設定與備份</h1></div>
+  </div>
+  <div class="px-4 pt-2">
+    <div class="sec-label">雲端連線狀態</div>
+    <div class="card">
+      <div class="flex items-center justify-between mb-2">
+        <div><div style="font-weight:800;font-size:14px">Google Sheets 連線</div><div style="font-size:12px;color:var(--text3);margin-top:2px;font-family:'JetBrains Mono',monospace" id="api-status-text">未測試</div></div>
+        <button onclick="testApiConnection()" class="btn btn-ghost btn-sm">🔌 測試連線</button>
+      </div>
+      <button onclick="syncAll()" class="btn btn-blue" style="width:100%">🔄 立即全量同步（以雲端為準）</button>
+    </div>
+    <div class="sec-label">車型管理</div>
+    <div class="card">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">自定義車型清單，將同步至訂單下拉選單。</p>
+      <div id="model-list-ui"></div>
+      <div class="flex gap-2 mt-2">
+        <input id="new-model-input" class="input flex-1" placeholder="新增車型名稱..." style="font-size:14px">
+        <button onclick="addVehicleModel()" class="btn btn-blue" style="padding:10px 14px">+ 新增</button>
+      </div>
+    </div>
+    <div class="sec-label">本地備份 (LocalStorage)</div>
+    <div class="card">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">匯出所有資料為 JSON，可複製至其他地方備份。</p>
+      <button onclick="exportData()" class="btn btn-blue" style="width:100%">⬇️ 匯出 JSON</button>
+      <textarea id="export-output" class="input mt-3" rows="4" placeholder="匯出的 JSON 將顯示在此..." readonly style="font-family:'JetBrains Mono',monospace;font-size:11px"></textarea>
+    </div>
+    <div class="card">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">貼上 JSON 資料以恢復備份。</p>
+      <textarea id="import-input" class="input mb-3" rows="4" placeholder="將 JSON 資料貼在此處..." style="font-family:'JetBrains Mono',monospace;font-size:11px"></textarea>
+      <button onclick="importData()" class="btn btn-green" style="width:100%">⬆️ 匯入 JSON</button>
+    </div>
+    <div class="sec-label">儲存狀態</div>
+    <div class="card" id="storage-stats" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);line-height:2"></div>
+    <div class="sec-label">危險區域</div>
+    <div class="card" style="border-color:rgba(220,38,38,.3)">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px;font-weight:600">清除所有本地資料（不影響 Google Sheets）。</p>
+      <button onclick="confirmAction('確定要清除所有本地資料嗎？\n此操作不影響 Google Sheets，但無法還原本地快取。','clearAllData')" class="btn btn-red" style="width:100%">⚠️ 清除本地資料</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ ORDER MODAL ══════════════════ -->
+<div id="order-modal" class="modal-overlay" style="display:none" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="flex items-center justify-between mb-4">
+      <h2 style="font-size:18px;font-weight:900" id="modal-title">新增訂單</h2>
+      <button onclick="closeOrderModal()" style="background:rgba(241,245,249,.9);border:1.5px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;font-weight:700">✕</button>
+    </div>
+    <input type="hidden" id="edit-order-id">
+    <div class="mb-3"><label class="lbl">訂單號碼</label><input id="f-ordernum" class="input" placeholder="例：EV-2025-001" type="text"></div>
+    <div class="mb-3"><label class="lbl">訂單日期</label><input id="f-date" class="input" type="date"></div>
+    <div class="mb-3"><label class="lbl">客戶姓名 *</label><input id="f-name" class="input" placeholder="王小明" type="text"></div>
+    <div class="mb-3"><label class="lbl">電話</label><input id="f-phone" class="input" placeholder="0912-345-678" type="tel"></div>
+    <div class="mb-3"><label class="lbl">車型</label><select id="f-model" class="input"></select></div>
+    <div class="mb-3"><label class="lbl">車輛顏色</label><input id="f-color" class="input" placeholder="例：消光黑、珍珠白..." type="text"></div>
+    <div class="mb-3"><label class="lbl">電池種類</label><input id="f-battery" class="input" placeholder="例：鋰電池 / 鉛酸電池" type="text"></div>
+    <div class="mb-3"><label class="lbl">車架號碼</label><input id="f-chassisno" class="input" placeholder="例：LSJA3CE50NA123456" type="text" style="font-family:'JetBrains Mono',monospace;letter-spacing:.5px"></div>
+    <div class="mb-3">
+      <label class="lbl">訂單狀態</label>
+      <select id="f-status" class="input" onchange="onStatusChange(this.value)">
+        <option value="待交車">待交車</option><option value="已完結">已完結</option>
+      </select>
+    </div>
+    <div class="mb-3" id="delivery-date-row" style="display:none">
+      <label class="lbl" style="color:var(--red)">🚗 交車日期 * <span style="font-size:10px;font-weight:600;color:var(--text3)">（決定利潤歸屬月份）</span></label>
+      <input id="f-deliverydate" class="input" type="date" style="border-color:var(--red)">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label class="lbl">銷售金額 ($)</label><input id="f-price" class="input" type="number" min="0" placeholder="0" oninput="calcProfit()"></div>
+      <div><label class="lbl">車輛成本 ($)</label><input id="f-cost" class="input" type="number" min="0" placeholder="0" oninput="calcProfit()"></div>
+    </div>
+    <div class="mb-3"><label class="lbl">已收訂金 ($) <span style="font-size:10px;color:var(--teal);font-weight:600">（待收尾款統計）</span></label><input id="f-deposit" class="input" type="number" min="0" placeholder="0" oninput="calcProfit()"></div>
+    <div class="mb-3" style="background:rgba(241,245,249,.8);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:700;color:var(--text2)">單筆利潤</span>
+        <span style="font-size:18px;font-weight:900" id="f-profit-preview">$0</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;font-weight:700;color:var(--teal)">待收尾款</span>
+        <span style="font-size:14px;font-weight:800;color:var(--teal)" id="f-balance-preview">$0</span>
+      </div>
+    </div>
+    <div class="mb-4"><label class="lbl">備註</label><textarea id="f-note" class="input" placeholder="額外說明..."></textarea></div>
+    <div class="flex gap-2">
+      <button onclick="closeOrderModal()" class="btn btn-ghost flex-1">取消</button>
+      <button onclick="saveOrder()" class="btn btn-blue flex-1">💾 儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ CONFIRM DIALOG ══════════════════ -->
+<div id="confirm-overlay" class="confirm-overlay" style="display:none">
+  <div class="confirm-box">
+    <div style="font-size:32px;text-align:center;margin-bottom:10px" id="confirm-icon">⚠️</div>
+    <div style="font-size:16px;font-weight:900;text-align:center;margin-bottom:8px;color:var(--text)" id="confirm-title">確認操作</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:20px" id="confirm-msg"></div>
+    <div class="flex gap-3">
+      <button onclick="confirmCancel()" class="btn btn-ghost flex-1" style="border-radius:12px">取消</button>
+      <button onclick="confirmOk()" class="btn btn-red flex-1" id="confirm-ok-btn" style="border-radius:12px">確定刪除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ BOTTOM NAV ══════════════════ -->
+<nav class="nav-bar">
+  <div class="nav-item active" id="nav-dash" onclick="switchPage('dash')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    總覽<div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-tasks" onclick="switchPage('tasks')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+    任務<div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-orders" onclick="switchPage('orders')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    訂單<div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-finance" onclick="switchPage('finance')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    財務<div class="nav-dot"></div>
+  </div>
+  <div class="nav-item" id="nav-settings" onclick="switchPage('settings')">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+    設定<div class="nav-dot"></div>
+  </div>
+</nav>
+
+<script>
+'use strict';
+// ════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════
+const API_URL='https://script.google.com/macros/s/AKfycbzHXrXJmcUO4bwUUy3lsI6nGblk8eXgPcRTYqFW0IXFKnH0i8LLfLSJFK97tamMFEWeDg/exec';
+
+// ════════════════════════════════════════
+// STORAGE KEYS
+// ════════════════════════════════════════
+const KEYS={
+  // ★ 任務合併：統一使用 tasks 陣列，結構：{id,text,type,done,createdAt,serial,synced}
+  // type: 'fixed'|'custom'|'memo'
+  tasks:'evp_tasks_v2',
+  orders:'evp_orders',
+  models:'evp_models',
+  // ★ 財務流水帳：expenses/incomes 均為陣列，不做任何月份加總覆蓋
+  // 結構：[{serial,date,ym,cat,item,amount,note}]
+  expenses:'evp_expenses_v2',
+  incomes:'evp_incomes_v2',
+};
+const DEFAULT_MODELS=['IE125','e-Moving','VIVA','其他'];
+const FIXED_TASKS_DEF=[
+  {id:'f1',text:'✅ 檢查訂單',type:'fixed'},
+  {id:'f2',text:'🔧 檢查客戶零件',type:'fixed'},
+  {id:'f3',text:'📦 常用零件是否有訂',type:'fixed'},
+  {id:'f4',text:'📝 維修備忘錄確認',type:'fixed'},
+];
+const MOTIVATIONS=['🎉 太厲害了！今日任務全部完成！','🚀 效率爆表！你是最強的！','💪 全部搞定，今天可以放心了！','⚡ 完美收工！業績等著你去突破！','🏆 所有任務完成！繼續保持這個節奏！'];
+const CHART_COLORS=['#2563eb','#16a34a','#d97706','#7c3aed','#0891b2','#db2777','#dc2626','#059669','#1d4ed8','#a21caf','#b45309','#0e7490'];
+
+function load(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch{return[];}}
+function loadObj(k){try{return JSON.parse(localStorage.getItem(k))||{};}catch{return {};}}
+function save(k,d){localStorage.setItem(k,JSON.stringify(d));}
+
+let currentFilter='all';
+let currentTaskFilter='all';
+let _confirmCallback=null;
+const _charts={};
+
+// ════════════════════════════════════════
+// ★ SERIAL NUMBER GENERATOR
+// Format: YYYYMMDD + 3-digit seq，唯一 Key
+// ════════════════════════════════════════
+function genSerial(){
+  const now=new Date();
+  const prefix=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  const seqKey='evp_seq_'+prefix;
+  let seq=Number(localStorage.getItem(seqKey)||0)+1;
+  localStorage.setItem(seqKey,String(seq));
+  return prefix+String(seq).padStart(3,'0');
+}
+
+// ════════════════════════════════════════
+// ★ MATH-SAFE — All monetary values use n()
+// Prevents "5000"+"3000"="50003000" string concat
+// ════════════════════════════════════════
+function n(v){const r=Number(v);return isFinite(r)?r:0;}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmt(v){return Math.round(n(v)).toLocaleString('zh-TW');}
+function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function getYM(val){
+  if(!val)return'';
+  if(typeof val==='number'||/^\d{10,}$/.test(String(val))){const d=new Date(Number(val));return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+  const p=String(val).split('-');if(p.length>=2)return`${p[0]}-${p[1].padStart(2,'0')}`;
+  return'';
+}
+function getYear(val){return getYM(val).split('-')[0];}
+function ymToLabel(ym){if(!ym)return'';const[y,m]=ym.split('-');return`${y} 年 ${parseInt(m)} 月`;}
+// ★ All profit via n() — zero string concat risk
+function calcOrderProfit(o){return n(o.price)-n(o.cost);}
+function calcOrderBalance(o){return n(o.price)-n(o.deposit);}
+function getProfitYM(o){
+  if(o.status==='已完結'&&o.deliveryDate)return getYM(o.deliveryDate);
+  return getYM(o.orderDate||o.createdAt);
+}
+function daysSince(dateStr){
+  if(!dateStr)return null;
+  const p=dateStr.split('-');if(p.length<3)return null;
+  const then=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  const diff=Math.floor((new Date()-then)/(864e5));
+  return diff>=0?diff:0;
+}
+function waitChip(days){
+  if(days===null)return'';
+  let cls='ok';if(days>=14)cls='urgent';else if(days>=7)cls='warn';
+  return`<span class="wait-chip ${cls}">⏱ ${days}天</span>`;
+}
+function growthHtml(cur,prev){
+  cur=n(cur);prev=n(prev);
+  if(prev===0&&cur===0)return`<span class="arrow-flat" style="font-size:10px">— 無資料</span>`;
+  if(prev===0)return`<span class="arrow-up" style="font-size:10px">▲ 新增</span>`;
+  const diff=cur-prev,pct=Math.round(Math.abs(diff)/Math.abs(prev)*100);
+  if(diff>0)return`<span class="arrow-up" style="font-size:10px">▲ +${pct}%</span>`;
+  if(diff<0)return`<span class="arrow-down" style="font-size:10px">▼ -${pct}%</span>`;
+  return`<span class="arrow-flat" style="font-size:10px">— 持平</span>`;
+}
+
+// ★ Finance helpers — all n() safe
+function getExpensesForYm(ym){return load(KEYS.expenses).filter(e=>e.ym===ym);}
+function getIncomesForYm(ym,cat){
+  const all=load(KEYS.incomes).filter(i=>i.ym===ym);
+  return cat?all.filter(i=>i.cat===cat):all;
+}
+function calcTotalExpense(ym){return getExpensesForYm(ym).reduce((s,e)=>s+n(e.amount),0);}
+function calcTotalRepair(ym){return getIncomesForYm(ym,'維修收入').reduce((s,i)=>s+n(i.amount),0);}
+function calcTotalOther(ym){return getIncomesForYm(ym,'其他收入').reduce((s,i)=>s+n(i.amount),0);}
+function calcNetProfit(ym){
+  const orders=load(KEYS.orders).filter(o=>getProfitYM(o)===ym&&o.status==='已完結');
+  const gross=orders.reduce((s,o)=>s+calcOrderProfit(o),0);
+  return gross+calcTotalRepair(ym)+calcTotalOther(ym)-calcTotalExpense(ym);
+}
+function calcGrossRevenue(ym){
+  return load(KEYS.orders).filter(o=>getProfitYM(o)===ym&&o.status==='已完結').reduce((s,o)=>s+n(o.price),0);
+}
+function getCurrentFinYm(){return document.getElementById('fin-month-sel')?.value||'';}
+
+// ════════════════════════════════════════
+// TOAST & SYNC
+// ════════════════════════════════════════
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='';
+  if(type==='err')t.classList.add('err');else if(type==='info')t.classList.add('info');
+  t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function showSync(state,msg){
+  const ind=document.getElementById('sync-indicator'),dot=document.getElementById('sync-dot'),txt=document.getElementById('sync-text');
+  txt.textContent=msg;
+  dot.className='sync-dot'+(state==='loading'?' spinning':state==='err'?' err':'');
+  ind.classList.add('show');
+  if(state!=='loading')setTimeout(()=>ind.classList.remove('show'),3500);
+}
+
+// ════════════════════════════════════════
+// CONFIRM DIALOG
+// ════════════════════════════════════════
+function confirmAction(msg,callbackName,opts={}){
+  _confirmCallback=callbackName;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-title').textContent=opts.title||'確認操作';
+  document.getElementById('confirm-icon').textContent=opts.icon||'⚠️';
+  document.getElementById('confirm-ok-btn').textContent=opts.okText||'確定刪除';
+  document.getElementById('confirm-ok-btn').className='btn flex-1'+(opts.okClass?` ${opts.okClass}`:'  btn-red');
+  document.getElementById('confirm-overlay').style.display='flex';
+}
+function confirmOk(){
+  document.getElementById('confirm-overlay').style.display='none';
+  if(_confirmCallback&&typeof window[_confirmCallback]==='function')window[_confirmCallback]();
+  _confirmCallback=null;
+}
+function confirmCancel(){document.getElementById('confirm-overlay').style.display='none';_confirmCallback=null;}
+
+// ════════════════════════════════════════
+// GOOGLE SHEETS API
+// ════════════════════════════════════════
+async function apiCall(action,data={}){
+  const READ_ACTIONS=['getOrders','getFinance','getModels','getTasks','ping'];
+  const isRead=READ_ACTIONS.includes(action);
+  const url=isRead?`${API_URL}?action=${action}`:API_URL;
+  const options={method:isRead?'GET':'POST',redirect:'follow'};
+  if(!isRead){
+    options.headers={'Content-Type':'text/plain;charset=utf-8'};
+    options.body=JSON.stringify({action,...data});
+  }
+  const res=await fetch(url,options);
+  if(!res.ok)throw new Error(`HTTP ${res.status}`);
+  const json=await res.json();
+  if(json.error)throw new Error(json.error);
+  return json;
+}
+
+// ★ Cloud-first 同步訂單：清空本地再從雲端完整載入
+async function fetchOrdersFromSheets(){
+  showSync('loading','從雲端讀取訂單…');
+  try{
+    const res=await apiCall('getOrders');
+    const rows=res.data||[];
+    if(!rows||rows.length===0){showSync('err','雲端無訂單資料');return load(KEYS.orders);}
+    const mapped=rows.map(r=>{
+      const orderNum=String(r['訂單號碼']||r['orderId']||'').trim();
+      return{
+        id:orderNum||('o_'+Date.now()+'_'+Math.random().toString(36).slice(2)),
+        orderNum,
+        orderDate:   r['日期']      ||r['date']        ||'',
+        name:        r['姓名']      ||r['name']        ||'',
+        phone:       r['電話']      ||r['phone']       ||'',
+        model:       r['車型']      ||r['model']       ||'',
+        color:       r['顏色']      ||r['color']       ||'',
+        battery:     r['電池']      ||r['battery']     ||'',
+        chassisNo:   r['車架號碼']  ||r['chassisNo']   ||'',
+        price:       n(r['金額']    ||r['amount']      ||0),
+        cost:        n(r['成本']    ||r['cost']        ||0),
+        deposit:     n(r['訂金']    ||r['deposit']     ||0),
+        status:      r['狀態']      ||r['status']      ||'待交車',
+        deliveryDate:r['交車日期']  ||r['deliveryDate']||'',
+        note:        r['備註']      ||r['note']        ||'',
+        createdAt:Date.now(),
+      };
+    });
+    // ★ Cloud-first: 清空本地再寫入
+    save(KEYS.orders,mapped);
+    showSync('ok',`已同步 ${mapped.length} 筆訂單`);
+    return mapped;
+  }catch(e){showSync('err','訂單同步失敗: '+e.message);throw e;}
+}
+
+// ★ Cloud-first 同步財務：
+// Finance 分頁欄位：序號, 日期, 月份, 類別, 項目, 金額, 備註
+// 類別值：'支出'|'維修收入'|'其他收入'
+async function fetchFinanceFromSheets(){
+  try{
+    const res=await apiCall('getFinance');
+    if(res&&Array.isArray(res.rows)&&res.rows.length>0){
+      // ★ 清空本地財務，以雲端為準
+      const expenses=[];
+      const incomes=[];
+      res.rows.forEach(r=>{
+        const row={
+          serial:String(r['序號']||r['serial']||''),
+          date:  r['日期']    ||r['date']   ||'',
+          ym:    r['月份']    ||r['ym']     ||'',
+          cat:   r['類別']    ||r['cat']    ||'',
+          item:  r['項目']    ||r['item']   ||'',
+          amount:n(r['金額'] ||r['amount'] ||0),
+          note:  r['備註']    ||r['note']   ||'',
+        };
+        if(row.cat==='支出')expenses.push(row);
+        else if(row.cat==='維修收入'||row.cat==='其他收入')incomes.push(row);
+      });
+      save(KEYS.expenses,expenses);
+      save(KEYS.incomes,incomes);
+    }
+  }catch(e){}
+}
+
+// ★ Cloud-first 同步任務
+async function fetchTasksFromSheets(){
+  try{
+    const res=await apiCall('getTasks');
+    if(res&&Array.isArray(res.rows)&&res.rows.length>0){
+      // 僅同步 custom/memo 類型任務；fixed 任務保持本地
+      const cloudCustom=res.rows.map(r=>({
+        id:   String(r['任務ID']||r['id']||''),
+        text: r['內容']||r['text']||'',
+        type: r['類型']||r['type']||'custom',
+        done: String(r['狀態']||r['done']||'')!=='已完成'?false:true,
+        createdAt:r['日期']||r['date']||todayStr(),
+        serial:String(r['序號']||r['serial']||''),
+        synced:true,
+      })).filter(t=>t.id&&(t.type==='custom'||t.type==='memo'));
+      // 合併：固定任務不受雲端影響
+      const current=load(KEYS.tasks);
+      const fixedLocal=current.filter(t=>t.type==='fixed');
+      const fixedStates={};fixedLocal.forEach(t=>fixedStates[t.id]=t.done);
+      // 合併 fixed + cloud custom
+      const merged=[
+        ...FIXED_TASKS_DEF.map(f=>({...f,done:!!fixedStates[f.id],serial:'',synced:true,createdAt:f.id})),
+        ...cloudCustom,
+      ];
+      save(KEYS.tasks,merged);
+    }
+  }catch(e){}
+}
+
+// ★ 推送單筆財務紀錄到雲端
+// Finance 試算表欄位：序號, 日期, 月份, 類別, 項目, 金額, 備註
+async function pushFinanceRowToSheets(row,isDelete=false){
+  if(!row||!row.serial)return;
+  try{
+    await apiCall(isDelete?'deleteFinance':'upsertFinance',{
+      data:{序號:row.serial,日期:row.date,月份:row.ym,類別:row.cat,項目:row.item,金額:n(row.amount),備註:row.note||''},
+      id:row.serial
+    });
+  }catch(e){}
+}
+
+// ★ 推送任務到 Tasks 試算表
+// Tasks 試算表欄位：序號, 任務ID, 日期, 類型, 內容, 狀態
+async function pushTaskToSheets(task){
+  if(!task||task.type==='fixed')return; // fixed 任務不推送到雲端
+  try{
+    await apiCall('upsertTask',{
+      data:{
+        序號: task.serial||'',
+        任務ID:task.id,
+        日期: task.createdAt||todayStr(),
+        類型: task.type,
+        內容: task.text,
+        狀態: task.done?'已完成':'進行中',
+      },
+      id:task.id
+    });
+  }catch(e){}
+}
+
+// ★ 推送訂單
+async function pushOrderToSheets(order,isDelete=false){
+  showSync('loading','寫入雲端…');
+  const orderId=String(order.orderNum||order.id||'').trim();
+  if(!orderId){showSync('err','訂單ID為空');return;}
+  try{
+    await apiCall(isDelete?'deleteOrder':'upsertOrder',{
+      data:{
+        orderId,
+        date:         order.orderDate   ||'',
+        name:         order.name        ||'',
+        phone:        order.phone       ||'',
+        model:        order.model       ||'',
+        color:        order.color       ||'',
+        battery:      order.battery     ||'',
+        chassisNo:    order.chassisNo   ||'',
+        amount:       n(order.price),
+        cost:         n(order.cost),
+        deposit:      n(order.deposit),
+        status:       order.status      ||'待交車',
+        deliveryDate: order.deliveryDate||'',
+        note:         order.note        ||'',
+      },
+      id:orderId
+    });
+    showSync('ok','雲端已更新');
+  }catch(e){showSync('err','雲端寫入失敗，本地已保存');}
+}
+
+async function fetchModelsFromSheets(){
+  try{const res=await apiCall('getModels');if(res&&Array.isArray(res.models)&&res.models.length>0)save(KEYS.models,res.models);}catch(e){}
+}
+async function pushModelsToSheets(){try{await apiCall('saveModels',{models:getModels()});}catch(e){}}
+
+// ★ Cloud-first syncAll: 清空本地，以雲端資料完整覆蓋
+async function syncAll(){
+  toast('🔄 同步中…','info');
+  try{
+    await fetchOrdersFromSheets();
+    await fetchFinanceFromSheets();
+    await fetchModelsFromSheets();
+    await fetchTasksFromSheets();
+    renderOrders();renderDashboard();renderTasks();
+    const ym=document.getElementById('fin-month-sel')?.value;
+    if(ym)renderFinance();
+    renderModelList();
+    toast('✅ 全量同步完成（以雲端為準）');
+  }catch(e){toast('⚠️ 部分同步失敗，使用本地資料','err');}
+}
+
+async function testApiConnection(){
+  document.getElementById('api-status-text').textContent='測試中…';
+  try{
+    await apiCall('ping');
+    document.getElementById('api-status-text').textContent='✅ 已連線 — '+new Date().toLocaleTimeString('zh-TW');
+    toast('✅ API 連線正常');
+  }catch(e){
+    document.getElementById('api-status-text').textContent='❌ 連線失敗: '+e.message;
+    toast('❌ API 連線失敗','err');
+  }
+}
+
+// ════════════════════════════════════════
+// SKELETON
+// ════════════════════════════════════════
+function showOrderSkeleton(){
+  document.getElementById('orders-list').innerHTML=['','',''].map(()=>`
+    <div style="background:rgba(255,255,255,.6);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px">
+      <div class="skel skel-line" style="width:40%"></div>
+      <div class="skel skel-line" style="width:70%"></div>
+      <div class="skel skel-line" style="width:55%;margin-bottom:0"></div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+// PAGE SWITCHING
+// ════════════════════════════════════════
+function switchPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if(name==='dash')renderDashboard();
+  if(name==='tasks')renderTasks();
+  if(name==='orders'){showOrderSkeleton();setTimeout(renderOrders,200);}
+  if(name==='finance'){populateFinSelectors();renderFinance();}
+  if(name==='settings'){renderModelList();renderStorageStats();}
+}
+
+// ════════════════════════════════════════
+// CONFETTI
+// ════════════════════════════════════════
+function fireConfetti(){
+  const cv=document.getElementById('confetti-canvas'),ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const pieces=[],colors=['#2563eb','#16a34a','#d97706','#7c3aed','#db2777','#0891b2','#0ea5e9'];
+  for(let i=0;i<100;i++)pieces.push({x:Math.random()*cv.width,y:-10,r:Math.random()*7+3,c:colors[i%colors.length],vx:(Math.random()-.5)*5,vy:Math.random()*4+2,alpha:1,rot:Math.random()*360,vr:(Math.random()-.5)*9});
+  let fr=0;
+  function draw(){ctx.clearRect(0,0,cv.width,cv.height);pieces.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.alpha-=.011;ctx.save();ctx.globalAlpha=Math.max(0,p.alpha);ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();});fr++;if(fr<130)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);}
+  draw();
+}
+function setRing(id,pct){const el=document.getElementById(id);if(!el)return;const c=232.5;el.style.strokeDashoffset=c-(c*Math.min(pct,1));}
+
+// ════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════
+function renderDashboard(){
+  const now=new Date();
+  const thisYm=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const lastD=new Date(now.getFullYear(),now.getMonth()-1,1);
+  const lastYm=`${lastD.getFullYear()}-${String(lastD.getMonth()+1).padStart(2,'0')}`;
+  const days=['日','一','二','三','四','五','六'];
+  document.getElementById('dash-date').innerHTML=`${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}<br>星期${days[now.getDay()]}`;
+
+  // Tasks ring
+  const allTasks=load(KEYS.tasks);
+  const visibleTasks=allTasks.filter(t=>!t.done||t.type==='fixed');
+  const doneCount=allTasks.filter(t=>t.done).length;
+  const totalTasks=allTasks.length;
+  const taskPct=totalTasks>0?doneCount/totalTasks:0;
+  setRing('ring-tasks',taskPct);
+  document.getElementById('ring-tasks-pct').textContent=Math.round(taskPct*100)+'%';
+  document.getElementById('dash-tasks-left').textContent=allTasks.filter(t=>!t.done).length;
+  document.getElementById('dash-completion-rate').textContent=Math.round(taskPct*100)+'%';
+  document.getElementById('dash-tasks-total').textContent=`${doneCount}/${totalTasks} 完成`;
+
+  const orders=load(KEYS.orders);
+  const thisOrders=orders.filter(o=>getYM(o.orderDate||o.createdAt)===thisYm);
+  const lastOrders=orders.filter(o=>getYM(o.orderDate||o.createdAt)===lastYm);
+  const pendingOrders=orders.filter(o=>o.status==='待交車');
+  const doneOrders=orders.filter(o=>o.status==='已完結');
+  const delivTotal=doneOrders.length+pendingOrders.length;
+  const delivPct=delivTotal>0?doneOrders.length/delivTotal:0;
+  setRing('ring-delivery',delivPct);
+  document.getElementById('ring-delivery-pct').textContent=Math.round(delivPct*100)+'%';
+  document.getElementById('dash-pending-count').textContent=pendingOrders.length;
+
+  const thisSales=thisOrders.length,lastSales=lastOrders.length;
+  const thisProfit=orders.filter(o=>getProfitYM(o)===thisYm&&o.status==='已完結').reduce((s,o)=>s+calcOrderProfit(o),0);
+  const lastProfit=orders.filter(o=>getProfitYM(o)===lastYm&&o.status==='已完結').reduce((s,o)=>s+calcOrderProfit(o),0);
+  document.getElementById('dash-month-sales').textContent=thisSales;
+  document.getElementById('dash-month-profit').textContent='$'+fmt(thisProfit);
+  document.getElementById('dash-sales-growth').innerHTML=growthHtml(thisSales,lastSales);
+  document.getElementById('dash-profit-growth').innerHTML=growthHtml(thisProfit,lastProfit);
+
+  const net=calcNetProfit(thisYm);
+  const netEl=document.getElementById('dash-net-profit');
+  netEl.textContent='$'+fmt(net);netEl.style.color=net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';
+
+  const depositTotal=pendingOrders.reduce((s,o)=>s+n(o.deposit),0);
+  const balanceTotal=pendingOrders.reduce((s,o)=>s+calcOrderBalance(o),0);
+  document.getElementById('dash-deposit-total').textContent='$'+fmt(depositTotal);
+  document.getElementById('dash-deposit-count').textContent=pendingOrders.length+'筆待交車';
+  document.getElementById('dash-balance-total').textContent='$'+fmt(balanceTotal);
+  document.getElementById('dash-balance-count').textContent='尾款未收金額';
+
+  const pl=document.getElementById('dash-pending-list');
+  if(!pendingOrders.length){
+    pl.innerHTML='<div class="empty" style="padding:16px 0"><div class="ico">🎉</div><p>目前沒有待交車訂單！</p></div>';
+  }else{
+    pl.innerHTML='';
+    pendingOrders.sort((a,b)=>(daysSince(b.orderDate)||0)-(daysSince(a.orderDate)||0)).forEach(o=>{
+      const days=daysSince(o.orderDate);const isUrgent=days!==null&&days>=7;
+      const balance=calcOrderBalance(o);
+      const smsBody=encodeURIComponent(`${o.name||''}您好，這裡是建元綠動，您的${o.model||'電動車'}訂單目前狀態為待交車，請與我們聯絡確認交車時間，謝謝！`);
+      const d=document.createElement('div');
+      d.className='card-flat'+(isUrgent?' card-urgent':'');
+      d.style.cssText='display:flex;justify-content:space-between;align-items:center';
+      d.innerHTML=`<div style="flex:1;min-width:0">
+        ${o.orderNum?`<span class="order-num">${esc(o.orderNum)}</span> `:''}
+        <span style="font-weight:800;font-size:15px${isUrgent?';color:var(--red)':''}">${esc(o.name)}</span>
+        ${o.color?`<span style="font-size:11px;background:rgba(219,234,254,.8);color:var(--blue);padding:1px 6px;border-radius:5px;margin-left:4px;font-weight:700">${esc(o.color)}</span>`:''}
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${o.model||'—'}${o.orderDate?' · '+o.orderDate:''}</div>
+        ${o.phone?`<div style="margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <a href="tel:${esc(o.phone)}" class="comm-btn comm-tel">📞 ${esc(o.phone)}</a>
+          <a href="sms:${esc(o.phone)}?body=${smsBody}" class="comm-btn comm-sms">💬 傳簡訊</a>
+        </div>`:''}
+        ${o.price?`<div style="font-size:11px;margin-top:3px"><span style="color:var(--teal);font-weight:700">訂：$${fmt(o.deposit||0)}</span> <span style="color:var(--pink);font-weight:700">尾：$${fmt(balance)}</span></div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:8px">${waitChip(days)}</div>`;
+      pl.appendChild(d);
+    });
+  }
+  populateHistSel();
+}
+
+function populateHistSel(){
+  const sel=document.getElementById('hist-month-sel');
+  const orders=load(KEYS.orders);const now=new Date();
+  const thisYm=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const ymSet=new Set();
+  orders.forEach(o=>{const ym=getYM(o.orderDate||o.createdAt);if(ym)ymSet.add(ym);});
+  for(let i=1;i<=6;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1);ymSet.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  const yms=[...ymSet].filter(y=>y!==thisYm).sort().reverse();
+  const prev=sel.value;sel.innerHTML='<option value="">— 選擇月份 —</option>';
+  yms.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=ymToLabel(y);if(y===prev)o.selected=true;sel.appendChild(o);});
+}
+
+function renderHistorical(){
+  const sel=document.getElementById('hist-month-sel');const ym=sel?.value;
+  const now=new Date();const thisYm=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const orders=load(KEYS.orders);const hEl=document.getElementById('hist-compare');
+  if(!ym){hEl.innerHTML='<span style="color:var(--text3)">請選擇月份進行對比</span>';return;}
+  const hist=orders.filter(o=>getYM(o.orderDate||o.createdAt)===ym);
+  const curr=orders.filter(o=>getYM(o.orderDate||o.createdAt)===thisYm);
+  const hSales=hist.length,cSales=curr.length;
+  const hProfit=hist.filter(o=>o.status==='已完結').reduce((s,o)=>s+calcOrderProfit(o),0);
+  const cProfit=curr.filter(o=>o.status==='已完結').reduce((s,o)=>s+calcOrderProfit(o),0);
+  hEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+      <div style="background:rgba(241,245,249,.8);border-radius:12px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3)">${ymToLabel(ym)}</div>
+        <div style="font-weight:900;font-size:20px">${hSales} 台</div>
+        <div style="font-weight:700;color:var(--text2)">$${fmt(hProfit)}</div>
+      </div>
+      <div style="background:var(--blue-l);border-radius:12px;padding:10px">
+        <div style="font-size:10px;font-weight:700;color:var(--blue)">本月</div>
+        <div style="font-weight:900;font-size:20px;color:var(--blue)">${cSales} 台</div>
+        <div style="font-weight:700;color:var(--blue)">$${fmt(cProfit)}</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:center;font-weight:800;font-size:13px">
+      銷量：${growthHtml(cSales,hSales)} &nbsp;|&nbsp; 毛利：${growthHtml(cProfit,hProfit)}
+    </div>`;
+}
+
+// ════════════════════════════════════════
+// ★ 統一任務系統 — 備忘錄與自定義任務合併
+// 資料結構：{id,text,type:'fixed'|'custom'|'memo',done,createdAt,serial,synced}
+// ════════════════════════════════════════
+function initTasks(){
+  // 確保固定任務存在於 tasks 陣列
+  let tasks=load(KEYS.tasks);
+  const taskMap={};tasks.forEach(t=>taskMap[t.id]=t);
+  let changed=false;
+  FIXED_TASKS_DEF.forEach(f=>{
+    if(!taskMap[f.id]){tasks.push({...f,done:false,serial:'',synced:true,createdAt:f.id});changed=true;}
+    else if(taskMap[f.id].type!=='fixed'){taskMap[f.id].type='fixed';changed=true;}
+  });
+  if(changed)save(KEYS.tasks,tasks);
+}
+
+function setTaskFilter(f){
+  currentTaskFilter=f;
+  document.querySelectorAll('.task-filter-wrap .filter-pill').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('tf-'+f);if(el)el.classList.add('active');
+  renderTasks();
+}
+
+function renderTasks(){
+  updateDateDisplay();
+  let tasks=load(KEYS.tasks);
+  // 過濾
+  let filtered=tasks;
+  if(currentTaskFilter==='pending')filtered=tasks.filter(t=>!t.done);
+  else if(currentTaskFilter==='fixed')filtered=tasks.filter(t=>t.type==='fixed');
+  else if(currentTaskFilter==='custom')filtered=tasks.filter(t=>t.type==='custom'||t.type==='memo');
+  // 排序：未完成優先，fixed > custom > memo
+  const typeOrder={fixed:0,custom:1,memo:2};
+  filtered.sort((a,b)=>{
+    if(a.done!==b.done)return a.done?1:-1;
+    return (typeOrder[a.type]||1)-(typeOrder[b.type]||1);
+  });
+  const list=document.getElementById('unified-task-list');list.innerHTML='';
+  if(!filtered.length){list.innerHTML='<div class="empty" style="padding:20px 0"><div class="ico">✅</div><p>沒有符合條件的任務</p></div>';return;}
+  filtered.forEach(t=>{
+    const div=document.createElement('div');
+    div.className='task-item'+(t.done?' done':'');
+    const tagCls={fixed:'tag-fixed',custom:'tag-custom',memo:'tag-memo'}[t.type]||'tag-custom';
+    const tagTxt={fixed:'固定',custom:'自訂',memo:'備忘'}[t.type]||'自訂';
+    const cb=document.createElement('div');cb.className='cbx'+(t.done?' on':'');
+    cb.onclick=()=>toggleUnifiedTask(t.id);
+    const content=document.createElement('div');content.style.flex='1';
+    content.innerHTML=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span class="task-tag ${tagCls}">${tagTxt}</span>
+      ${t.synced?'<span class="task-tag tag-synced">☁️</span>':''}
+      <span class="task-text" style="padding-top:0">${esc(t.text)}</span>
+    </div>
+    <div class="task-meta">${t.serial?'#'+t.serial+' · ':''} ${t.createdAt&&t.createdAt!==t.id?t.createdAt:''}</div>`;
+    div.appendChild(cb);div.appendChild(content);
+    if(t.type!=='fixed'){
+      const btn=document.createElement('button');
+      btn.textContent='✕';
+      btn.style.cssText='background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px 6px;font-weight:700;flex-shrink:0';
+      btn.onclick=()=>confirmAction(`確定刪除「${t.text}」？\nApp 端刪除，雲端 Sheets 保留留底。`,'_delTask_'+t.id,{icon:'🗑️',okText:'確定刪除'});
+      window['_delTask_'+t.id]=()=>deleteUnifiedTask(t.id);
+      div.appendChild(btn);
+    }
+    list.appendChild(div);
+  });
+  // 完成率 banner
+  const doneCnt=tasks.filter(t=>t.done).length;
+  const banner=document.getElementById('moti-banner');
+  if(tasks.length>0&&doneCnt===tasks.length){
+    banner.style.display='block';
+    banner.textContent=MOTIVATIONS[Math.floor(Math.random()*MOTIVATIONS.length)];
+    fireConfetti();
+  }else banner.style.display='none';
+}
+
+function toggleUnifiedTask(id){
+  const tasks=load(KEYS.tasks);
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  t.done=!t.done;
+  save(KEYS.tasks,tasks);
+  renderTasks();renderDashboard();
+  // ★ 勾選狀態也同步到雲端（非 fixed）
+  if(t.type!=='fixed')pushTaskToSheets(t);
+}
+
+// ★ 確認按鈕機制：按下才新增，不自動觸發
+function submitNewTask(){
+  const inp=document.getElementById('task-input');
+  const text=inp.value.trim();if(!text){toast('⚠️ 請輸入任務內容','err');return;}
+  const typeEl=document.querySelector('input[name="task-type"]:checked');
+  const type=typeEl?typeEl.value:'custom';
+  const serial=genSerial();
+  const task={
+    id:'t_'+Date.now(),
+    text,type,done:false,
+    createdAt:todayStr(),
+    serial,
+    synced:false,
+  };
+  const tasks=load(KEYS.tasks);tasks.push(task);
+  save(KEYS.tasks,tasks);
+  inp.value='';
+  renderTasks();
+  toast('✓ 任務已新增');
+  pushTaskToSheets({...task,synced:true}); // 同步雲端
+  // 標記為已同步
+  setTimeout(()=>{
+    const ts=load(KEYS.tasks);const t=ts.find(x=>x.id===task.id);
+    if(t){t.synced=true;save(KEYS.tasks,ts);renderTasks();}
+  },1500);
+}
+
+function deleteUnifiedTask(id){
+  // ★ 僅從 App 移除，不刪除雲端留底
+  const tasks=load(KEYS.tasks).filter(t=>t.id!==id);
+  save(KEYS.tasks,tasks);
+  renderTasks();
+  toast('🗑️ 已從 App 移除（雲端留底保留）');
+}
+
+// ★ 手動同步任務到雲端
+async function syncTasksToCloud(){
+  toast('☁️ 同步任務中…','info');
+  const tasks=load(KEYS.tasks).filter(t=>t.type!=='fixed');
+  let count=0;
+  for(const t of tasks){
+    await pushTaskToSheets(t);count++;
+  }
+  // 標記全部已同步
+  const ts=load(KEYS.tasks);ts.forEach(t=>t.synced=true);save(KEYS.tasks,ts);
+  renderTasks();
+  toast(`✅ ${count} 筆任務已同步`);
+}
+
+function clearCompletedTasks(){
+  const tasks=load(KEYS.tasks);
+  // fixed 任務完成後重置 done，不刪除；custom/memo 完成後才刪除
+  const kept=tasks.map(t=>{
+    if(t.type==='fixed'&&t.done)return{...t,done:false};
+    return t;
+  }).filter(t=>t.type==='fixed'||!t.done);
+  save(KEYS.tasks,kept);
+  renderTasks();toast('✓ 已清除完成任務');
+}
+
+// ════════════════════════════════════════
+// ORDERS
+// ════════════════════════════════════════
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-pill:not(.task-filter-wrap .filter-pill)').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('fp-'+f);if(el)el.classList.add('active');
+  renderOrders();
+}
+
+function renderOrders(){
+  const q=(document.getElementById('search-input')?.value||'').toLowerCase();
+  let orders=load(KEYS.orders);
+  if(currentFilter!=='all')orders=orders.filter(o=>o.status===currentFilter);
+  if(q)orders=orders.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.phone||'').includes(q)||(o.orderNum||'').toLowerCase().includes(q));
+  orders.sort((a,b)=>{const da=a.orderDate||'',db=b.orderDate||'';return da<db?1:da>db?-1:0;});
+  const list=document.getElementById('orders-list');
+  if(!orders.length){list.innerHTML='<div class="empty"><div class="ico">⚡</div><p>沒有符合條件的訂單</p></div>';return;}
+  list.innerHTML='';
+  orders.forEach(o=>{
+    const card=document.createElement('div');card.className='card-flat';
+    const isDone=o.status==='已完結',bc=isDone?'b-done':'b-wait';
+    const profit=calcOrderProfit(o),balance=calcOrderBalance(o);
+    const days=!isDone?daysSince(o.orderDate):null,isUrgent=days!==null&&days>=7;
+    if(isUrgent)card.classList.add('card-urgent');
+    const profitHtml=o.price?`<span style="font-size:12px;font-weight:800;${profit>=0?'color:var(--green)':'color:var(--red)'}">${profit>=0?'+':''}$${fmt(profit)}</span>`:'';
+    const note=o.note?`<div style="margin-top:7px;font-size:12px;color:var(--text2);border-top:1px solid var(--border-solid);padding-top:7px;font-weight:600">${esc(o.note)}</div>`:'';
+    const smsBody=encodeURIComponent(`${o.name||''}您好，這裡是建元綠動，您的${o.model||'電動車'}訂單目前狀態為${o.status}，請與我們聯絡，謝謝！`);
+    card.innerHTML=`
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:2px">
+            ${o.orderNum?`<span class="order-num">${esc(o.orderNum)}</span>`:''}
+            <span style="font-weight:900;font-size:16px${isUrgent?';color:var(--red)':''}">${esc(o.name)}</span>
+            <span class="badge ${bc}">${esc(o.status)}</span>
+            ${profitHtml}${days!==null?waitChip(days):''}
+          </div>
+          ${o.phone?`<div style="margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+            <a href="tel:${esc(o.phone)}" class="comm-btn comm-tel">📞 ${esc(o.phone)}</a>
+            <a href="sms:${esc(o.phone)}?body=${smsBody}" class="comm-btn comm-sms">💬 簡訊</a>
+          </div>`:''}
+          <div style="margin-top:3px;font-size:11px;color:var(--text3);font-weight:600">
+            ${o.model?'🛵 '+esc(o.model):''}${o.color?` · 🎨 ${esc(o.color)}`:''}${o.battery?` · 🔋 ${esc(o.battery)}`:''}${o.chassisNo?` · 🔑 ${esc(o.chassisNo)}`:''}
+          </div>
+          ${o.deliveryDate?`<div style="margin-top:2px;font-size:11px;color:var(--green);font-weight:700">🚗 交車：${esc(o.deliveryDate)}</div>`:''}
+          ${!isDone&&o.price?`<div style="margin-top:3px;font-size:11px"><span style="color:var(--teal);font-weight:700">訂金：$${fmt(o.deposit||0)}</span> <span style="color:var(--pink);font-weight:700">尾款：$${fmt(balance)}</span></div>`:''}
+          ${note}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button onclick='openOrderModal(${JSON.stringify(o).replace(/'/g,"&#39;")})' style="background:rgba(255,255,255,.8);border:1.5px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:800">✏️</button>
+          <button onclick="confirmDeleteOrder('${o.id}')" style="background:var(--red-l);border:1.5px solid #fca5a5;color:var(--red);padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:800">🗑️</button>
+        </div>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace">${o.orderDate||''}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function confirmDeleteOrder(id){
+  const o=load(KEYS.orders).find(x=>x.id===id);
+  window._pendingDeleteOrderId=id;
+  confirmAction(`確定要刪除「${o?o.name:'此訂單'}」的訂單嗎？\n此操作將同時從 Google Sheets 移除，無法復原。`,'_execDeleteOrder',{icon:'🗑️',okText:'確定刪除'});
+}
+window._execDeleteOrder=async function(){
+  const id=window._pendingDeleteOrderId;if(!id)return;
+  const orders=load(KEYS.orders);const o=orders.find(x=>x.id===id);
+  save(KEYS.orders,orders.filter(x=>x.id!==id));
+  renderOrders();renderDashboard();toast('🗑️ 訂單已刪除');
+  if(o)await pushOrderToSheets(o,true);
+};
+
+function openOrderModal(order=null){
+  document.getElementById('modal-title').textContent=order?'編輯訂單':'新增訂單';
+  document.getElementById('edit-order-id').value=order?order.id:'';
+  document.getElementById('f-ordernum').value=order?(order.orderNum||''):'';
+  document.getElementById('f-date').value=order?order.orderDate:todayStr();
+  document.getElementById('f-name').value=order?order.name:'';
+  document.getElementById('f-phone').value=order?order.phone:'';
+  document.getElementById('f-color').value=order?(order.color||''):'';
+  document.getElementById('f-battery').value=order?order.battery:'';
+  document.getElementById('f-chassisno').value=order?(order.chassisNo||''):'';
+  const status=order?order.status:'待交車';
+  document.getElementById('f-status').value=status;
+  document.getElementById('f-deliverydate').value=order?(order.deliveryDate||''):'';
+  onStatusChange(status);
+  document.getElementById('f-price').value=order&&n(order.price)?order.price:'';
+  document.getElementById('f-cost').value=order&&n(order.cost)?order.cost:'';
+  document.getElementById('f-deposit').value=order&&n(order.deposit)?order.deposit:'';
+  document.getElementById('f-note').value=order?order.note:'';
+  populateModelSelect(order?order.model:'');
+  calcProfit();
+  document.getElementById('order-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('f-name').focus(),300);
+}
+function onStatusChange(val){
+  const row=document.getElementById('delivery-date-row');
+  if(val==='已完結'){row.style.display='block';if(!document.getElementById('f-deliverydate').value)document.getElementById('f-deliverydate').value=todayStr();}
+  else row.style.display='none';
+}
+function closeOrderModal(){document.getElementById('order-modal').style.display='none';}
+function handleOverlayClick(e){if(e.target===document.getElementById('order-modal'))closeOrderModal();}
+
+function calcProfit(){
+  const price=n(document.getElementById('f-price').value);
+  const cost=n(document.getElementById('f-cost').value);
+  const deposit=n(document.getElementById('f-deposit').value);
+  const p=price-cost,balance=price-deposit;
+  const el=document.getElementById('f-profit-preview');
+  el.textContent=(p>=0?'+':'')+'$'+fmt(p);el.style.color=p>0?'var(--green)':p<0?'var(--red)':'var(--text2)';
+  const bEl=document.getElementById('f-balance-preview');
+  bEl.textContent='$'+fmt(Math.max(0,balance));
+}
+
+async function saveOrder(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){toast('⚠️ 請填寫客戶姓名','err');return;}
+  const status=document.getElementById('f-status').value;
+  const deliveryDate=document.getElementById('f-deliverydate').value;
+  if(status==='已完結'&&!deliveryDate){toast('⚠️ 請填寫交車日期，才能計算利潤月份','err');document.getElementById('f-deliverydate').focus();return;}
+  const editId=document.getElementById('edit-order-id').value;
+  const orders=load(KEYS.orders);
+  const orderDate=document.getElementById('f-date').value||todayStr();
+  let orderNum=document.getElementById('f-ordernum').value.trim();
+  const newId=editId||'o_'+Date.now();
+  if(!orderNum)orderNum=newId;
+  const data={
+    id:newId,orderNum,orderDate,name,
+    phone:       document.getElementById('f-phone').value.trim(),
+    model:       document.getElementById('f-model').value,
+    color:       document.getElementById('f-color').value.trim(),
+    battery:     document.getElementById('f-battery').value.trim(),
+    chassisNo:   document.getElementById('f-chassisno').value.trim(),
+    status,deliveryDate,
+    price:       n(document.getElementById('f-price').value),
+    cost:        n(document.getElementById('f-cost').value),
+    deposit:     n(document.getElementById('f-deposit').value),
+    note:        document.getElementById('f-note').value.trim(),
+    createdAt:   editId?(orders.find(o=>o.id===editId)?.createdAt||Date.now()):Date.now(),
+    updatedAt:   Date.now(),
+  };
+  if(editId){const i=orders.findIndex(o=>o.id===editId);if(i!==-1)orders[i]=data;else orders.push(data);}
+  else orders.push(data);
+  save(KEYS.orders,orders);
+  closeOrderModal();renderOrders();renderDashboard();
+  toast(editId?'✓ 訂單已更新':'✓ 訂單已新增');
+  await pushOrderToSheets(data,false);
+}
+document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')e.target.blur();});
+
+// ════════════════════════════════════════
+// ★ 支出流水帳 CRUD — 確認按鈕機制，每筆獨立序號
+// ════════════════════════════════════════
+// ★ 按下「確認新增支出」才執行，不自動觸發
+function confirmAddExpense(){
+  const ym=getCurrentFinYm();if(!ym){toast('請先選擇月份','err');return;}
+  const item=document.getElementById('exp-item-input').value.trim();
+  const amount=n(document.getElementById('exp-amount-input').value); // ★ n() 強制數字
+  const cat=document.getElementById('exp-cat-sel').value;
+  const note=document.getElementById('exp-note-input').value.trim();
+  if(!item){toast('⚠️ 請填寫支出項目','err');return;}
+  if(amount<=0){toast('⚠️ 金額需大於 0','err');return;}
+  // ★ 每筆新增產生獨立序號，不覆蓋舊資料
+  const serial=genSerial();
+  const row={serial,date:todayStr(),ym,cat,item,amount,note};
+  const all=load(KEYS.expenses);
+  all.push(row); // ★ push — 不覆蓋，純新增
+  save(KEYS.expenses,all);
+  document.getElementById('exp-item-input').value='';
+  document.getElementById('exp-amount-input').value='';
+  document.getElementById('exp-note-input').value='';
+  renderExpenseList(ym);recalcFinNet(ym);
+  toast(`✓ 支出 #${serial} 已新增`);
+  pushFinanceRowToSheets(row,false);
+}
+
+function renderExpenseList(ym){
+  if(!ym)return;
+  const items=getExpensesForYm(ym);
+  const el=document.getElementById('exp-list');el.innerHTML='';
+  if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0">尚無支出項目</div>';}
+  else{
+    items.forEach((e)=>{
+      const row=document.createElement('div');row.className='exp-item';
+      row.innerHTML=`
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:13px;color:var(--text)">${esc(e.item)} <span style="background:rgba(124,58,237,.1);color:var(--purple);font-size:10px;padding:1px 6px;border-radius:5px;font-weight:700">${esc(e.cat||'')}</span></div>
+          <div class="serial-badge" style="margin-top:2px">#${esc(e.serial||'—')} · ${esc(e.date||ym)}</div>
+          ${e.note?`<div style="font-size:11px;color:var(--text3);margin-top:1px">${esc(e.note)}</div>`:''}
+        </div>
+        <div style="font-size:15px;font-weight:900;color:var(--red);margin:0 8px;flex-shrink:0">$${fmt(e.amount)}</div>
+        <button onclick="deleteExpenseBySerial('${esc(e.serial)}')" style="background:var(--red-l);border:1px solid #fca5a5;color:var(--red);padding:4px 8px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:800;flex-shrink:0">🗑️</button>`;
+      el.appendChild(row);
+    });
+  }
+  document.getElementById('exp-total').textContent='$'+fmt(calcTotalExpense(ym));
+}
+
+// ★ 依序號精確刪除
+function deleteExpenseBySerial(serial){
+  const e=load(KEYS.expenses).find(x=>x.serial===serial);if(!e)return;
+  window._pendingDelExpSerial=serial;
+  confirmAction(`確定刪除支出「${e.item}」？\n序號：${serial}\n此操作將同時從雲端刪除。`,'_execDelExp',{icon:'💸',okText:'確定刪除'});
+}
+window._execDelExp=async function(){
+  const serial=window._pendingDelExpSerial;if(!serial)return;
+  const all=load(KEYS.expenses);
+  const e=all.find(x=>x.serial===serial);
+  const ym=e?.ym||getCurrentFinYm();
+  save(KEYS.expenses,all.filter(x=>x.serial!==serial));
+  renderExpenseList(ym);recalcFinNet(ym);
+  toast('🗑️ 支出已刪除');
+  if(e)await pushFinanceRowToSheets(e,true); // ★ deleteFinance by serial
+};
+
+// ════════════════════════════════════════
+// ★ 收入流水帳 — 每筆獨立，確認按鈕機制
+// ════════════════════════════════════════
+// ★ 按下確認才執行，每次產生新序號，不覆蓋舊紀錄
+async function confirmAddIncome(type){
+  const ym=getCurrentFinYm();if(!ym){toast('請先選擇月份','err');return;}
+  const inputId=type==='repair'?'fin-repair-input':'fin-other-input';
+  const noteId=type==='repair'?'fin-repair-note':'fin-other-note';
+  const amount=n(document.getElementById(inputId).value); // ★ n() 強制數字
+  const note=document.getElementById(noteId).value.trim();
+  if(amount<=0){toast('⚠️ 金額需大於 0','err');return;}
+  const cat=type==='repair'?'維修收入':'其他收入';
+  const serial=genSerial(); // ★ 每筆新增獨立序號
+  const row={serial,date:todayStr(),ym,cat,item:cat,amount,note};
+  const all=load(KEYS.incomes);
+  all.push(row); // ★ push — 不覆蓋，純新增流水帳
+  save(KEYS.incomes,all);
+  document.getElementById(inputId).value='';
+  document.getElementById(noteId).value='';
+  renderIncomeList(ym);recalcFinNet(ym);
+  toast(`✓ ${cat} #${serial} 已確認新增`);
+  await pushFinanceRowToSheets(row,false);
+}
+
+function renderIncomeList(ym){
+  if(!ym)return;
+  // 維修收入清單
+  const repairItems=getIncomesForYm(ym,'維修收入');
+  const repairEl=document.getElementById('repair-income-list');
+  if(repairEl){
+    repairEl.innerHTML='';
+    if(!repairItems.length){repairEl.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:6px 0">尚無維修收入紀錄</div>';}
+    else repairItems.forEach(i=>{
+      const d=document.createElement('div');d.className='income-hist-item';
+      d.innerHTML=`<div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${esc(i.item||'維修收入')}${i.note?`<span style="font-size:11px;color:var(--text3);margin-left:4px">${esc(i.note)}</span>`:''}</div>
+        <div class="serial-badge">#${esc(i.serial||'—')} · ${esc(i.date||ym)}</div>
+      </div>
+      <div style="font-size:15px;font-weight:900;color:var(--green);margin:0 8px">+$${fmt(i.amount)}</div>
+      <button onclick="deleteIncomeBySerial('${esc(i.serial)}')" style="background:rgba(254,226,226,.6);border:1px solid #fca5a5;color:var(--red);padding:4px 8px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:800">🗑️</button>`;
+      repairEl.appendChild(d);
+    });
+    const subtotEl=document.getElementById('repair-subtotal');
+    if(subtotEl)subtotEl.textContent='$'+fmt(calcTotalRepair(ym));
+  }
+  // 其他收入清單
+  const otherItems=getIncomesForYm(ym,'其他收入');
+  const otherEl=document.getElementById('other-income-list');
+  if(otherEl){
+    otherEl.innerHTML='';
+    if(!otherItems.length){otherEl.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:6px 0">尚無其他收入紀錄</div>';}
+    else otherItems.forEach(i=>{
+      const d=document.createElement('div');d.className='income-hist-item';
+      d.innerHTML=`<div style="flex:1">
+        <div style="font-size:13px;font-weight:700">${esc(i.item||'其他收入')}${i.note?`<span style="font-size:11px;color:var(--text3);margin-left:4px">${esc(i.note)}</span>`:''}</div>
+        <div class="serial-badge">#${esc(i.serial||'—')} · ${esc(i.date||ym)}</div>
+      </div>
+      <div style="font-size:15px;font-weight:900;color:var(--blue);margin:0 8px">+$${fmt(i.amount)}</div>
+      <button onclick="deleteIncomeBySerial('${esc(i.serial)}')" style="background:rgba(254,226,226,.6);border:1px solid #fca5a5;color:var(--red);padding:4px 8px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:800">🗑️</button>`;
+      otherEl.appendChild(d);
+    });
+    const subtotEl=document.getElementById('other-subtotal');
+    if(subtotEl)subtotEl.textContent='$'+fmt(calcTotalOther(ym));
+  }
+}
+
+// ★ 依序號精確刪除收入
+function deleteIncomeBySerial(serial){
+  const i=load(KEYS.incomes).find(x=>x.serial===serial);if(!i)return;
+  window._pendingDelIncSerial=serial;
+  confirmAction(`確定刪除「${i.item}」收入？\n序號：${serial}\n此操作將同時從雲端刪除。`,'_execDelInc',{icon:'💰',okText:'確定刪除'});
+}
+window._execDelInc=async function(){
+  const serial=window._pendingDelIncSerial;if(!serial)return;
+  const all=load(KEYS.incomes);
+  const i=all.find(x=>x.serial===serial);
+  const ym=i?.ym||getCurrentFinYm();
+  save(KEYS.incomes,all.filter(x=>x.serial!==serial));
+  renderIncomeList(ym);recalcFinNet(ym);
+  toast('🗑️ 收入已刪除');
+  if(i)await pushFinanceRowToSheets(i,true);
+};
+
+// 重算淨利（支出/收入變動後呼叫）
+function recalcFinNet(ym){
+  if(!ym)return;
+  const orders=load(KEYS.orders).filter(o=>getProfitYM(o)===ym&&o.status==='已完結');
+  const gross=orders.reduce((s,o)=>s+calcOrderProfit(o),0);
+  const repair=calcTotalRepair(ym),other=calcTotalOther(ym),expense=calcTotalExpense(ym);
+  const net=gross+repair+other-expense;
+  const nEl=document.getElementById('fin-net');if(nEl){nEl.textContent=(net>=0?'+':'')+'$'+fmt(net);nEl.style.color=net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';}
+  const dExp=document.getElementById('fin-d-exp');if(dExp)dExp.textContent='$'+fmt(expense);
+  const dRep=document.getElementById('fin-d-repair');if(dRep)dRep.textContent='$'+fmt(repair);
+  const dOth=document.getElementById('fin-d-other');if(dOth)dOth.textContent='$'+fmt(other);
+  renderAnnualTable();
+}
+
+// ════════════════════════════════════════
+// FINANCE — render
+// ════════════════════════════════════════
+function getAllYears(){
+  const orders=load(KEYS.orders);const now=new Date();
+  const ys=new Set([String(now.getFullYear())]);
+  orders.forEach(o=>{const y=getYear(o.orderDate||o.createdAt);if(y)ys.add(y);});
+  return[...ys].sort().reverse();
+}
+function getMonthsForYear(year){
+  const orders=load(KEYS.orders);const now=new Date();
+  const ms=new Set();
+  orders.filter(o=>{const ym=getYM(o.orderDate||o.createdAt);return ym&&ym.startsWith(year+'-');}).forEach(o=>ms.add(getYM(o.orderDate||o.createdAt)));
+  if(String(now.getFullYear())===String(year))ms.add(`${year}-${String(now.getMonth()+1).padStart(2,'0')}`);
+  if(ms.size===0)for(let m=1;m<=12;m++)ms.add(`${year}-${String(m).padStart(2,'0')}`);
+  return[...ms].sort().reverse();
+}
+function populateFinSelectors(){
+  const now=new Date();const curYear=String(now.getFullYear());
+  const curYm=`${curYear}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const yearSel=document.getElementById('fin-year-sel'),monthSel=document.getElementById('fin-month-sel');
+  const prevYear=yearSel.value,prevMonth=monthSel.value;
+  const years=getAllYears();yearSel.innerHTML='';
+  years.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+' 年';if(y===(prevYear||curYear))o.selected=true;yearSel.appendChild(o);});
+  if(!yearSel.value&&years.length)yearSel.value=years[0];
+  populateFinMonthsForYear(yearSel.value,prevMonth||curYm);
+  populateCmpSelectors();
+}
+function populateFinMonthsForYear(year,preferYm){
+  const monthSel=document.getElementById('fin-month-sel');const months=getMonthsForYear(year);
+  monthSel.innerHTML='';
+  months.forEach(ym=>{const o=document.createElement('option');o.value=ym;o.textContent=ymToLabel(ym);if(ym===preferYm)o.selected=true;monthSel.appendChild(o);});
+  if(!monthSel.value&&months.length)monthSel.value=months[0];
+}
+function onFinYearChange(){populateFinMonthsForYear(document.getElementById('fin-year-sel').value,'');renderFinance();}
+
+function populateCmpSelectors(){
+  const now=new Date();const orders=load(KEYS.orders);
+  const ymSet=new Set();
+  orders.forEach(o=>{const ym=getYM(o.orderDate||o.createdAt);if(ym)ymSet.add(ym);});
+  for(let i=0;i<12;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1);ymSet.add(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);}
+  const yms=[...ymSet].sort().reverse();
+  ['cmp-ym-a','cmp-ym-b'].forEach((id,idx)=>{
+    const sel=document.getElementById(id);const prev=sel.value;sel.innerHTML='';
+    yms.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=ymToLabel(y);if(y===prev)o.selected=true;sel.appendChild(o);});
+    if(!sel.value&&yms.length)sel.value=yms[idx]||yms[0];
+  });
+}
+
+function renderFinance(){
+  const ym=document.getElementById('fin-month-sel')?.value;if(!ym)return;
+  const orders=load(KEYS.orders).filter(o=>getProfitYM(o)===ym&&o.status==='已完結');
+  const gross=orders.reduce((s,o)=>s+calcOrderProfit(o),0);
+  const revenue=orders.reduce((s,o)=>s+n(o.price),0);
+  const repair=calcTotalRepair(ym),other=calcTotalOther(ym),expense=calcTotalExpense(ym);
+  const net=gross+repair+other-expense;
+  document.getElementById('fin-count').textContent=orders.length;
+  document.getElementById('fin-revenue').textContent='$'+fmt(revenue);
+  const gEl=document.getElementById('fin-gross');gEl.textContent='$'+fmt(gross);gEl.className=gross>=0?'profit-pos':'profit-neg';
+  const nEl=document.getElementById('fin-net');nEl.textContent=(net>=0?'+':'')+'$'+fmt(net);nEl.style.color=net>0?'var(--green)':net<0?'var(--red)':'var(--text2)';
+  document.getElementById('fin-d-gross').textContent='$'+fmt(gross);document.getElementById('fin-d-gross').className=gross>=0?'profit-pos':'profit-neg';
+  document.getElementById('fin-d-repair').textContent='$'+fmt(repair);
+  document.getElementById('fin-d-other').textContent='$'+fmt(other);
+  document.getElementById('fin-d-exp').textContent='$'+fmt(expense);
+  renderExpenseList(ym);
+  renderIncomeList(ym);
+  renderAnnualTable();
+  renderTrendChart();renderPieChart(ym);renderCompareChart();
+  // 訂單利潤清單
+  const ol=document.getElementById('fin-order-list');
+  if(!orders.length){ol.innerHTML='<div class="empty">本月尚無已完結訂單</div>';return;}
+  ol.innerHTML='';
+  orders.sort((a,b)=>(a.deliveryDate||a.orderDate)<(b.deliveryDate||b.orderDate)?1:-1).forEach(o=>{
+    const p=calcOrderProfit(o);const d=document.createElement('div');d.className='card-flat';
+    d.style.display='flex';d.style.justifyContent='space-between';d.style.alignItems='center';
+    d.innerHTML=`<div>
+      ${o.orderNum?`<span class="order-num" style="margin-right:4px">${esc(o.orderNum)}</span>`:''}
+      <span style="font-weight:800;font-size:14px">${esc(o.name)}</span>
+      ${o.color?`<span style="font-size:11px;color:var(--blue);margin-left:4px">🎨${esc(o.color)}</span>`:''}
+      <div style="font-size:11px;color:var(--text3)">${o.model||'—'} · 交車：${o.deliveryDate||o.orderDate||''}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:var(--text3)">售$${fmt(n(o.price))} / 成$${fmt(n(o.cost))}</div>
+      <div style="font-weight:900;font-size:16px;${p>=0?'color:var(--green)':'color:var(--red)'}">${p>=0?'+':''}$${fmt(p)}</div>
+    </div>`;
+    ol.appendChild(d);
+  });
+}
+
+function renderAnnualTable(){
+  const year=document.getElementById('fin-year-sel')?.value;if(!year)return;
+  const orders=load(KEYS.orders);
+  const tbl=document.getElementById('fin-annual-table');tbl.innerHTML='';
+  const hdr=document.createElement('div');hdr.className='ann-row hd';
+  hdr.innerHTML='<div>月</div><div>毛利</div><div>淨利</div><div>台數</div>';tbl.appendChild(hdr);
+  let tg=0,tn=0,ts=0;
+  for(let m=1;m<=12;m++){
+    const ym=`${year}-${String(m).padStart(2,'0')}`;
+    const mo=orders.filter(o=>getProfitYM(o)===ym&&o.status==='已完結');
+    const gross=mo.reduce((s,o)=>s+calcOrderProfit(o),0);
+    const net=calcNetProfit(ym);
+    tg+=gross;tn+=net;ts+=mo.length;
+    const row=document.createElement('div');row.className='ann-row';
+    const hasData=mo.length>0||calcTotalExpense(ym)>0||calcTotalRepair(ym)>0;
+    row.style.opacity=hasData?'1':'0.35';
+    row.innerHTML=`<div style="color:var(--text2)">${m}月</div>
+      <div style="${gross>0?'color:var(--green)':gross<0?'color:var(--red)':'color:var(--text3)'}">$${fmt(gross)}</div>
+      <div style="${net>0?'color:var(--green)':net<0?'color:var(--red)':'color:var(--text3)'}">$${fmt(net)}</div>
+      <div style="color:var(--blue)">${mo.length||'—'}</div>`;
+    tbl.appendChild(row);
+  }
+  const tot=document.createElement('div');tot.className='ann-row total-row';
+  tot.innerHTML=`<div style="color:var(--blue-d)">合計</div>
+    <div style="${tg>=0?'color:var(--green)':'color:var(--red)'}">$${fmt(tg)}</div>
+    <div style="${tn>=0?'color:var(--green)':'color:var(--red)'}">$${fmt(tn)}</div>
+    <div style="color:var(--blue)">${ts}</div>`;
+  tbl.appendChild(tot);
+}
+
+// ════════════════════════════════════════
+// CHARTS (Chart.js)
+// ════════════════════════════════════════
+function destroyChart(id){if(_charts[id]){_charts[id].destroy();delete _charts[id];}}
+
+function renderTrendChart(){
+  destroyChart('trend');
+  const now=new Date();const labels=[],revenues=[],grosses=[],nets=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    labels.push(ymToLabel(ym));
+    revenues.push(calcGrossRevenue(ym));
+    const ord=load(KEYS.orders).filter(o=>getProfitYM(o)===ym&&o.status==='已完結');
+    grosses.push(ord.reduce((s,o)=>s+calcOrderProfit(o),0));
+    nets.push(calcNetProfit(ym));
+  }
+  const ctx=document.getElementById('chart-trend').getContext('2d');
+  _charts['trend']=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'營收',data:revenues,backgroundColor:'rgba(37,99,235,.25)',borderColor:'rgba(37,99,235,.8)',borderWidth:2,borderRadius:6},
+      {label:'毛利',data:grosses,backgroundColor:'rgba(22,163,74,.25)',borderColor:'rgba(22,163,74,.8)',borderWidth:2,borderRadius:6},
+      {label:'淨利',data:nets,type:'line',borderColor:'rgba(124,58,237,1)',backgroundColor:'rgba(124,58,237,.1)',borderWidth:2.5,pointRadius:4,fill:true,tension:.35},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:11,family:'Nunito'},color:'#475569'}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${Math.round(c.raw).toLocaleString('zh-TW')}`}}},
+      scales:{y:{ticks:{callback:v=>'$'+Math.round(v).toLocaleString('zh-TW'),font:{size:10}},grid:{color:'rgba(203,213,225,.4)'}},x:{ticks:{font:{size:10}},grid:{display:false}}}}
+  });
+}
+
+function renderPieChart(ym){
+  destroyChart('pie');
+  const items=getExpensesForYm(ym);
+  if(!items.length){document.getElementById('pie-legend').textContent='本月尚無支出記錄';return;}
+  const catMap={};items.forEach(e=>{const c=e.cat||'其他';catMap[c]=(catMap[c]||0)+n(e.amount);});
+  const labels=Object.keys(catMap);const data=Object.values(catMap);
+  const ctx=document.getElementById('chart-pie').getContext('2d');
+  _charts['pie']=new Chart(ctx,{
+    type:'doughnut',
+    data:{labels,datasets:[{data,backgroundColor:CHART_COLORS.slice(0,labels.length),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.label}: $${Math.round(c.raw).toLocaleString('zh-TW')}`}}}}
+  });
+  const total=data.reduce((s,v)=>s+v,0);
+  document.getElementById('pie-legend').innerHTML=labels.map((l,i)=>`<span style="display:inline-flex;align-items:center;gap:3px;margin-right:10px;margin-bottom:3px"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${CHART_COLORS[i]||'#999'}"></span><b>${l}</b> ${Math.round(n(data[i])/total*100)}%</span>`).join('');
+}
+
+function renderCompareChart(){
+  destroyChart('compare');
+  const ymA=document.getElementById('cmp-ym-a')?.value;const ymB=document.getElementById('cmp-ym-b')?.value;
+  if(!ymA||!ymB)return;
+  const ordA=load(KEYS.orders).filter(o=>getProfitYM(o)===ymA&&o.status==='已完結');
+  const ordB=load(KEYS.orders).filter(o=>getProfitYM(o)===ymB&&o.status==='已完結');
+  const revA=ordA.reduce((s,o)=>s+n(o.price),0),grossA=ordA.reduce((s,o)=>s+calcOrderProfit(o),0),netA=calcNetProfit(ymA);
+  const revB=ordB.reduce((s,o)=>s+n(o.price),0),grossB=ordB.reduce((s,o)=>s+calcOrderProfit(o),0),netB=calcNetProfit(ymB);
+  const ctx=document.getElementById('chart-compare').getContext('2d');
+  _charts['compare']=new Chart(ctx,{
+    type:'bar',
+    data:{labels:['營收','毛利','淨利'],datasets:[
+      {label:ymToLabel(ymA),data:[revA,grossA,netA],backgroundColor:'rgba(37,99,235,.7)',borderRadius:6},
+      {label:ymToLabel(ymB),data:[revB,grossB,netB],backgroundColor:'rgba(22,163,74,.7)',borderRadius:6},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:11,family:'Nunito'},color:'#475569'}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: $${Math.round(c.raw).toLocaleString('zh-TW')}`}}},
+      scales:{y:{ticks:{callback:v=>'$'+Math.round(v).toLocaleString('zh-TW'),font:{size:10}},grid:{color:'rgba(203,213,225,.4)'}},x:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+}
+
+// ════════════════════════════════════════
+// CSV EXPORT
+// ════════════════════════════════════════
+function exportMonthlyCSV(){
+  const ym=getCurrentFinYm();if(!ym){toast('請先選擇月份','err');return;}
+  const orders=load(KEYS.orders).filter(o=>getProfitYM(o)===ym&&o.status==='已完結');
+  const expenses=getExpensesForYm(ym);
+  const repair=calcTotalRepair(ym),other=calcTotalOther(ym),expTotal=calcTotalExpense(ym);
+  const gross=orders.reduce((s,o)=>s+calcOrderProfit(o),0);
+  const net=gross+repair+other-expTotal;
+  const rows=[
+    ['=== 訂單明細 ===','','','','','','',''],
+    ['訂單號碼','姓名','車型','顏色','銷售金額','成本','訂金','利潤'],
+    ...orders.map(o=>[o.orderNum||'',o.name,o.model,o.color||'',n(o.price),n(o.cost),n(o.deposit),calcOrderProfit(o)]),
+    ['','','','','','','',''],
+    ['=== 支出流水帳 ===','','','','','','',''],
+    ['序號','日期','類別','項目','金額','備註','',''],
+    ...expenses.map(e=>[e.serial||'',e.date||ym,e.cat||'',e.item,n(e.amount),e.note||'','','']),
+    ['','','','','','','',''],
+    ['=== 收入流水帳 ===','','','','','','',''],
+    ['序號','日期','類別','項目','金額','備註','',''],
+    ...getIncomesForYm(ym).map(i=>[i.serial||'',i.date||ym,i.cat||'',i.item,n(i.amount),i.note||'','','']),
+    ['','','','','','','',''],
+    ['=== 月度摘要 ===','','','','','','',''],
+    ['車輛毛利','$'+fmt(gross),'','','','','',''],
+    ['維修收入','$'+fmt(repair),'','','','','',''],
+    ['其他收入','$'+fmt(other),'','','','','',''],
+    ['支出合計','$'+fmt(expTotal),'','','','','',''],
+    ['月度淨利','$'+fmt(net),'','','','','',''],
+  ];
+  const bom='\uFEFF';
+  const csv=bom+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`EV-PRO-${ym}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  toast('📊 CSV 已下載');
+}
+
+// ════════════════════════════════════════
+// VEHICLE MODELS
+// ════════════════════════════════════════
+function getModels(){const m=load(KEYS.models);return m.length?m:[...DEFAULT_MODELS];}
+function renderModelList(){
+  const models=getModels();const ml=document.getElementById('model-list-ui');ml.innerHTML='';
+  models.forEach((m,i)=>{
+    const d=document.createElement('div');d.className='card-flat';
+    d.style.cssText='display:flex;align-items:center;justify-content:space-between;';
+    d.innerHTML=`<span style="font-weight:700;font-size:15px">🛵 ${esc(m)}</span>
+    <button onclick="confirmAction('確定刪除「${esc(m)}」車型？','_delModel${i}',{icon:'🛵',okText:'確定刪除'})" style="background:var(--red-l);border:1.5px solid #fca5a5;color:var(--red);padding:5px 11px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:800">刪除</button>`;
+    window[`_delModel${i}`]=()=>{const models=getModels();models.splice(i,1);save(KEYS.models,models);renderModelList();toast('🗑️ 車型已刪除');pushModelsToSheets();};
+    ml.appendChild(d);
+  });
+}
+async function addVehicleModel(){
+  const inp=document.getElementById('new-model-input');const name=inp.value.trim();if(!name)return;
+  const models=getModels();if(models.includes(name)){toast('⚠️ 車型已存在','err');return;}
+  models.push(name);save(KEYS.models,models);inp.value='';renderModelList();toast('✓ 車型已新增');
+  await pushModelsToSheets();
+}
+function populateModelSelect(current=''){
+  const sel=document.getElementById('f-model');const models=getModels();
+  sel.innerHTML='<option value="">請選擇</option>';
+  models.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;if(m===current)o.selected=true;sel.appendChild(o);});
+}
+document.getElementById('new-model-input').addEventListener('keydown',e=>{if(e.key==='Enter')addVehicleModel();});
+
+// ════════════════════════════════════════
+// BACKUP / RESTORE
+// ════════════════════════════════════════
+function exportData(){
+  const data={
+    exportedAt:new Date().toISOString(),
+    tasks:load(KEYS.tasks),
+    orders:load(KEYS.orders),
+    models:load(KEYS.models),
+    expenses:load(KEYS.expenses),
+    incomes:load(KEYS.incomes),
+  };
+  const json=JSON.stringify(data,null,2);
+  document.getElementById('export-output').value=json;
+  try{navigator.clipboard.writeText(json);toast('✓ JSON 已複製到剪貼簿');}catch{toast('✓ 請手動複製 JSON');}
+}
+function importData(){
+  const raw=document.getElementById('import-input').value.trim();
+  if(!raw){toast('⚠️ 請貼上 JSON','err');return;}
+  try{
+    const d=JSON.parse(raw);
+    if(d.tasks)save(KEYS.tasks,d.tasks);
+    if(d.orders)save(KEYS.orders,d.orders);
+    if(d.models)save(KEYS.models,d.models);
+    if(d.expenses)save(KEYS.expenses,d.expenses);
+    if(d.incomes)save(KEYS.incomes,d.incomes);
+    document.getElementById('import-input').value='';
+    renderTasks();renderOrders();renderModelList();renderStorageStats();
+    toast('✓ 資料已成功匯入');
+  }catch{toast('❌ JSON 格式錯誤','err');}
+}
+function clearAllData(){
+  Object.values(KEYS).forEach(k=>localStorage.removeItem(k));
+  initTasks();renderTasks();renderOrders();renderModelList();renderStorageStats();
+  toast('🗑️ 本地資料已清除');
+}
+function renderStorageStats(){
+  const orders=load(KEYS.orders),tasks=load(KEYS.tasks);
+  const expCount=load(KEYS.expenses).length,incCount=load(KEYS.incomes).length;
+  document.getElementById('storage-stats').innerHTML=
+    `<div>📦 訂單：<strong style="color:var(--blue)">${orders.length} 筆</strong></div>
+     <div>✅ 任務：<strong style="color:var(--green)">${tasks.filter(t=>!t.done).length} 未完成 / ${tasks.length} 筆</strong></div>
+     <div>💸 支出流水帳：<strong style="color:var(--red)">${expCount} 筆</strong></div>
+     <div>💰 收入流水帳：<strong style="color:var(--green)">${incCount} 筆</strong></div>
+     <div>🛵 車型：<strong>${getModels().length} 種</strong></div>
+     <div>🕐 <span style="color:var(--text3)">${new Date().toLocaleString('zh-TW')}</span></div>`;
+}
+
+// ════════════════════════════════════════
+// DATE
+// ════════════════════════════════════════
+function updateDateDisplay(){
+  const now=new Date();const days=['日','一','二','三','四','五','六'];
+  const str=`${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}<br>星期${days[now.getDay()]}`;
+  const el=document.getElementById('today-date');if(el)el.innerHTML=str;
+}
+
+// ════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════
+initTasks();
+updateDateDisplay();
+renderTasks();
+renderDashboard();
+
+window.addEventListener('load',()=>{
+  setTimeout(async()=>{
+    try{await fetchOrdersFromSheets();}catch(e){}
+    try{await fetchFinanceFromSheets();}catch(e){}
+    try{await fetchModelsFromSheets();}catch(e){}
+    try{await fetchTasksFromSheets();}catch(e){}
+    renderDashboard();
+    renderTasks();
+    renderModelList();
+  },800);
+});
+</script>
+</body>
+</html>
